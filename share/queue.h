@@ -10,6 +10,8 @@ namespace yohub {
 template<typename T>
 class Queue {
   public:
+    typedef std::vector<T> Container;
+
     Queue() : mu_(), cv_(&mu_) { }
 
     void Push(T x) {
@@ -20,21 +22,20 @@ class Queue {
         elems_.push_back(x);
     }
 
-    bool FetchAll(std::vector<T>& v, int wait_seconds) {
+    bool FetchAll(Container* c, int wait_seconds) {
         MutexLock l(&mu_);
         while (elems_.empty()) {
             if (cv_.TimedWait(wait_seconds))
                 return false;
         }
-        assert(v.empty());
-        v.swap(elems_);
+        c->swap(elems_);
         return true;
     }
 
   private:
     Mutex mu_;
     CondVar cv_;
-    std::vector<T> elems_;
+    Container elems_;
 };
 
 } // namespace yohub

@@ -15,7 +15,7 @@ void FetchProc() {
     int times = 0;
     while (g_flag) {
         std::vector<int> take;
-        g_queue.FetchAll(take, 1);
+        g_queue.FetchAll(&take, 1);
         times++;
         sum += take.size();
     }

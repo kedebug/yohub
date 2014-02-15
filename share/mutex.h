@@ -27,7 +27,7 @@ class Mutex : boost::noncopyable {
         utils::PthreadCall("mutex unlock", pthread_mutex_unlock(&mtx_));
     }
 
-    void AssertHeld() {}
+    void AssertHeld() { }
     
   private:
     friend class CondVar;

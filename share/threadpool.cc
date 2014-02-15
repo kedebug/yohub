@@ -44,8 +44,8 @@ void ThreadPool::Stop() {
 
 void ThreadPool::WorkHandler(int which) {
     while (AtomicGetValue(running_)) {
-        std::vector<Job> jobs;
-        queues_[which].FetchAll(jobs, 1);
+        JobQueue::Container jobs;
+        queues_[which].FetchAll(&jobs, 1);
 
         for (size_t i = 0; i < jobs.size(); i++) {
             jobs[i]();
