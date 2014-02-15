@@ -7,7 +7,7 @@
 namespace yohub {
 namespace utils {
 
-void PthreadCall(const char* label, int result) {
+inline void PthreadCall(const char* label, int result) {
     if (result != 0) {
         LOG_FATAL("pthread %s: %s\n", label, strerror(result));
     }

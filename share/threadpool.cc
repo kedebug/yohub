@@ -6,7 +6,8 @@ using namespace yohub;
 
 ThreadPool::ThreadPool()
     : running_(0),
-      workers_(0)
+      workers_(0),
+      job_count_(0)
 {
 }
 
@@ -21,7 +22,7 @@ void ThreadPool::Start(int workers) {
     assert(threads_.empty());
     
     AtomicSetValue(running_, 1);
-    AtomicSetValue(worker_, workers);
+    AtomicSetValue(workers_, workers);
 
     threads_.reserve(workers);
     for (int i = 0; i < workers; i++) {
@@ -34,25 +35,29 @@ void ThreadPool::Start(int workers) {
 
 void ThreadPool::Stop() {
     AtomicSetValue(running_, 0);
-    AtomicSetValue(worker_, 0);
+    AtomicSetValue(workers_, 0);
+
     for (size_t i = 0; i < threads_.size(); i++) {
         threads_[i].Join();
     }
-
 }
 
 void ThreadPool::WorkHandler(int which) {
-    QueuePtr work_queue = queues_[which];
-
     while (AtomicGetValue(running_)) {
-        std::vector<Job*> take;
-        work_queue.FetchAll(take);
+        std::vector<Job> jobs;
+        queues_[which].FetchAll(jobs, 1);
 
-        assert(!take.empty());
-        for (size_t i = 0; i < take.size(); i++) {
-            Job* job = take[i];
-            job->functor();
-
+        for (size_t i = 0; i < jobs.size(); i++) {
+            jobs[i]();
+            AtomicDec(job_count_);
         }
     }
+}
+
+void ThreadPool::Schedule(Job job, int which) {
+    int jobs = AtomicInc(job_count_);
+    if (which == -1) {
+        which = jobs % workers_;
+    }
+    queues_[which].Push(job);
 }

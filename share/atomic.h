@@ -6,7 +6,7 @@
 namespace yohub {
 
 // return old value
-static inline int atomic_add(volatile int* count, int add) {
+static inline int atomic_add(volatile void* count, int add) {
     __asm__ __volatile__(
         "lock xadd %0, (%1);"
         : "=a"(add)

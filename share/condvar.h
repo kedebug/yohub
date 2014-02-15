@@ -21,6 +21,13 @@ class CondVar : boost::noncopyable {
         utils::PthreadCall("wait", pthread_cond_wait(&cv_, &mutex_->mtx_));
     }
 
+    bool TimedWait(int seconds) {
+        struct timespec abstime;
+        clock_gettime(CLOCK_REALTIME, &abstime);
+        abstime.tv_sec += seconds;
+        return ETIMEDOUT == pthread_cond_timedwait(&cv_, &mutex_->mtx_, &abstime);
+    }
+
     void Signal() {
         utils::PthreadCall("signal", pthread_cond_signal(&cv_)); 
     }

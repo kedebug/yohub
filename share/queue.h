@@ -20,15 +20,15 @@ class Queue {
         elems_.push_back(x);
     }
 
-    void FetchAll(std::vector<T>& target) {
+    bool FetchAll(std::vector<T>& v, int wait_seconds) {
         MutexLock l(&mu_);
         while (elems_.empty()) {
-            cv_.Wait();
+            if (cv_.TimedWait(wait_seconds))
+                return false;
         }
-        if (!target.empty()) {
-            target.clear();
-        }
-        target.swap(elems_);
+        assert(v.empty());
+        v.swap(elems_);
+        return true;
     }
 
   private:

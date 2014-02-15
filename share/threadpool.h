@@ -4,6 +4,7 @@
 #include "share/async.h"
 #include "share/atomic.h"
 #include "share/thread.h"
+#include "share/mutex.h"
 #include "share/queue.h"
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
@@ -13,8 +14,8 @@ namespace yohub {
 
 class ThreadPool : boost::noncopyable {
   public:
-    typedef Queue<Job*> JobQueue;
-    typedef boost::ptr_vector<JobQueue>::auto_type QueuePtr;
+    typedef boost::function<void()> Job;
+    typedef Queue<Job> JobQueue;
 
     ThreadPool();
     ~ThreadPool();
@@ -22,10 +23,9 @@ class ThreadPool : boost::noncopyable {
     void Start(int workers);
     void Stop();
 
-    void ScheduleJob(Job* job, int which);
-    void CancelJob(Job* job, int which);
+    void Schedule(Job job, int which);
 
-    int workers() const { 
+    int workers() { 
         return AtomicGetValue(workers_);
     }
 
@@ -34,6 +34,8 @@ class ThreadPool : boost::noncopyable {
 
     volatile int running_;
     volatile int workers_;
+    volatile int job_count_;
+
     boost::ptr_vector<JobQueue> queues_;
     boost::ptr_vector<Thread> threads_;
 };
