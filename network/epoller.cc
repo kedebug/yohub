@@ -1,4 +1,5 @@
 #include "network/epoller.h"
+#include <unistd.h>
 
 using namespace yohub;
 
@@ -18,4 +19,5 @@ void EPoller::Poll(int timeout_ms, ChannelList* active) {
     if (size > 0) {
 
     }
+    // channel->setrevent;
 }

@@ -3,11 +3,12 @@
 
 using namespace yohub;
 
-Channel::Channel(IoEvent* io_event, int fd)
-    : fd_(fd),
+Channel::Channel(EventPool* event_pool, int fd, int id)
+    : id_(0), 
+      fd_(fd),
       events_(EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET),
       revents_(0),
-      io_event_(io_event)
+      event_pool_(event_pool)
 {
 }
 

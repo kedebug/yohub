@@ -18,7 +18,8 @@ class EPoller : boost::noncopyable {
     EPoller();
     ~EPoller();
 
-    void Poll(int timeout_ms, ChannelList* active);
+    void Poll(int timeout_ms, ChannelList* active_channels);
+    void Close();
     void AttachChannel(Channel* channel);
     void DetachChannel(Channel* channel);
 
