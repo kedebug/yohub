@@ -24,6 +24,8 @@ class EPoller : boost::noncopyable {
     void DetachChannel(Channel* channel);
 
   private:
+    void UpdateChannel(int op, Channel* channel);
+
     int epoll_fd_;
     ChannelMap channels_;
     EventList events_;

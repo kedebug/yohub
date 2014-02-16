@@ -1,6 +1,7 @@
 #ifndef _YOHUB_NETWORK_CHANNEL_H_
 #define _YOHUB_NETWORK_CHANNEL_H_
 
+#include "share/atomic.h"
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 
@@ -12,22 +13,34 @@ class Channel : boost::noncopyable {
     typedef boost::function<void()> CallbackFn;
 
     Channel(EventPool* event_pool, int fd, int id);
+    ~Channel();
 
     void Register();
     void Unregister();
 
+    void SetStatus(int status);
     void SetReadyEvents(int revents);
     void EventHandler();
 
+    void EnableRead(); 
+    void EnableWrite();
+    void DisableWrite();
+
+    bool WriteFlagOn();
+
     int fd() const { return fd_; }
-    int events() const { return events_; }
     int id() const { return id_; }
+    int status() { return AtomicGetValue(status_); }
+    int events() { return AtomicGetValue(events_); }
 
   private:
+    void Update();
+
     const int id_;
     const int fd_;
-    int events_;
-    int revents_;
+    volatile int events_;
+    volatile int revents_;
+    volatile int status_;
     EventPool* event_pool_;
 
     CallbackFn read_callback_;

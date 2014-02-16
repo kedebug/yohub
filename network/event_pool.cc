@@ -45,3 +45,13 @@ void EventPool::PollWrapper(int which) {
         }
     }
 }
+
+void EventPool::AttachChannel(Channel* channel) {
+    int which = channel->id() % num_pollers_;
+    pollers_[which].AttachChannel(channel);
+}
+
+void EventPool::DetachChannel(Channel* channel) {
+    int which = channel->id() % num_pollers_;
+    pollers_[which].DetachChannel(channel);
+}
