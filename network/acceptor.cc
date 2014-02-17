@@ -23,6 +23,7 @@ void Acceptor::SetAndBind(const InetAddress& bindaddr) {
     AtomicSetValue(bind_, 1);
 
     accept_socket_.SetReuseAddr(true);
+    accept_socket_.SetTcpNoDelay(true);
     accept_socket_.Bind(bindaddr);
 }
 
