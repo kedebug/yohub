@@ -23,6 +23,8 @@ class Socket : boost::noncopyable {
 
     int fd() const { return socket_fd_; }
 
+    static int CreateNonblockingSocket();
+
   private:
     const int socket_fd_;
 };

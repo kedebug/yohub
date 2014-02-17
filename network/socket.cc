@@ -71,3 +71,11 @@ void Socket::SetKeepAlive(bool opt) {
     int value = opt ? 1 : 0;
     ::setsockopt(socket_fd_, SOL_SOCKET, SO_KEEPALIVE, &value, sizeof(value));
 }
+
+int Socket::CreateNonblockingSocket() {
+    int newfd = ::socket(AF_INET, SOCK_NONBLOCK | SOCK_CLOEXEC | SOCK_STREAM, IPPROTO_TCP);
+    if (newfd < 0) {
+        LOG_FATAL("socket failed, error: %s", strerror(errno));
+    }
+    return newfd;
+}
