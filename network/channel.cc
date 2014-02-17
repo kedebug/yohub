@@ -50,6 +50,11 @@ void Channel::DisableWrite() {
     Update();
 }
 
+void Channel::DisableAll() {
+    AtomicSetValue(events_, 0);
+    Update();
+}
+
 bool Channel::WriteAllowed() {
     return AtomicGetValue(events_) & EPOLLOUT;
 }

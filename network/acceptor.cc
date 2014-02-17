@@ -42,7 +42,7 @@ void Acceptor::OnAccept() {
             on_new_connection_(newfd, peeraddr);
         } else {
             ::close(newfd);
-            LOG_WARNING("new connection callback should set");
+            LOG_WARNING("the new connection callback should set");
         }
     } else {
         LOG_WARNING("OnAccept failed, fd=%d", accept_socket_.fd());
