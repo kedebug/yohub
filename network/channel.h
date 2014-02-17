@@ -12,29 +12,42 @@ class Channel : boost::noncopyable {
   public:
     typedef boost::function<void()> CallbackFn;
 
-    Channel(EventPool* event_pool, int fd, int id);
+    Channel(EventPool* event_pool, int fd);
     ~Channel();
 
     void Register();
     void Unregister();
 
+    void EventHandler();
+
     void SetStatus(int status);
     void SetReadyEvents(int revents);
-    void EventHandler();
 
     void EnableRead(); 
     void EnableWrite();
     void DisableWrite();
 
-    bool WriteFlagOn();
+    void DisableAll();
+
+    bool WriteAllowed();
 
     int fd() const { return fd_; }
     int id() const { return id_; }
     int status() { return AtomicGetValue(status_); }
     int events() { return AtomicGetValue(events_); }
 
+    void SetReadCallback(const CallbackFn& callback_fn) {
+        read_callback_ = callback_fn;
+    }
+
+    void SetWriteCallback(const CallbackFn& callback_fn) {
+        write_callback_ = callback_fn;
+    }
+
   private:
     void Update();
+
+    static volatile int s_sequence_number_;
 
     const int id_;
     const int fd_;

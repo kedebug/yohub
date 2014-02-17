@@ -4,8 +4,10 @@
 
 using namespace yohub;
 
-Channel::Channel(EventPool* event_pool, int fd, int id)
-    : id_(id), 
+volatile int Channel::s_sequence_number_ = 0;
+
+Channel::Channel(EventPool* event_pool, int fd)
+    : id_(AtomicInc(s_sequence_number_)), 
       fd_(fd),
       events_(0),
       revents_(0),
@@ -44,11 +46,11 @@ void Channel::EnableWrite() {
 }
 
 void Channel::DisableWrite() {
-    AtomicSetValue(events_, events() ^ EPOLLOUT);
+    AtomicSetValue(events_, events() & (~EPOLLOUT));
     Update();
 }
 
-bool Channel::WriteFlagOn() {
+bool Channel::WriteAllowed() {
     return AtomicGetValue(events_) & EPOLLOUT;
 }
 

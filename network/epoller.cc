@@ -62,6 +62,8 @@ void EPoller::DetachChannel(Channel* channel) {
     if (status == kAdded) {
         UpdateChannel(EPOLL_CTL_DEL, channel);
     }
+
+    channel->SetStatus(kNew);
 }
 
 void EPoller::UpdateChannel(int op, Channel* channel) {
