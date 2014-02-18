@@ -34,8 +34,8 @@ void AsyncServer::OnNewConnection(int sockfd, const InetAddress& peeraddr) {
         new AsyncConnection(event_pool_, sockfd, local_addr, peeraddr);
     
     new_conn->SetConnectionCallback(on_connection_cb_);
-    new_conn->SetWriteCompleteCallback(on_write_complete_cb_);
-    new_conn->SetReadCompleteCallback(on_read_complete_cb_);
+    new_conn->SetWriteCompletionCallback(on_write_completion_cb_);
+    new_conn->SetReadCompletionCallback(on_read_completion_cb_);
 
     connections_[AtomicInc(num_connections_)] = new_conn;
     new_conn->Connected();

@@ -8,8 +8,8 @@ namespace yohub {
 class AsyncConnection;
 
 typedef boost::function<void (AsyncConnection*)> ConnectionCallback;
-typedef boost::function<void (AsyncConnection*)> WriteCompleteCallback;
-typedef boost::function<void (AsyncConnection*)> ReadCompleteCallback;
+typedef boost::function<void (AsyncConnection*)> WriteCompletionCallback;
+typedef boost::function<void (AsyncConnection*)> ReadCompletionCallback;
 
 } // namespace yohub
 

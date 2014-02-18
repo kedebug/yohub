@@ -20,8 +20,8 @@ class AsyncServer : boost::noncopyable {
     void Start();
 
     void SetConnectionCallback(const ConnectionCallback& callback);
-    void SetWriteCompleteCallback(const WriteCompleteCallback& callback);
-    void SetReadCompleteCallback(const ReadCompleteCallback& callback);
+    void SetWriteCompletionCallback(const WriteCompletionCallback& callback);
+    void SetReadCompletionCallback(const ReadCompletionCallback& callback);
 
   private:
     // thread-safe:
@@ -36,8 +36,8 @@ class AsyncServer : boost::noncopyable {
     InetAddress bind_addr_;
 
     ConnectionCallback on_connection_cb_;
-    WriteCompleteCallback on_write_complete_cb_;
-    ReadCompleteCallback on_read_complete_cb_;
+    WriteCompletionCallback on_write_completion_cb_;
+    ReadCompletionCallback on_read_completion_cb_;
 };
 
 } // namespace yohub
