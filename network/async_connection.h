@@ -2,6 +2,7 @@
 #define _YOHUB_NETWORK_ASYNC_CONNECTION_H_
 
 #include "network/inet_address.h"
+#include "network/callbacks.h"
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
 
@@ -12,10 +13,6 @@ class EventPool;
 
 class AsyncConnection : boost::noncopyable {
   public:
-    typedef boost::function<void (AsyncConnection*)> ConnectionCallback;
-    typedef boost::function<void (AsyncConnection*)> WriteCompleteCallback;
-    typedef boost::function<void (AsyncConnection*)> ReceiveCompleteCallback;
-
     AsyncConnection(EventPool* event_pool,
                     int socket_fd,
                     const InetAddress& local_addr,
@@ -37,7 +34,7 @@ class AsyncConnection : boost::noncopyable {
 
     ConnectionCallback on_connection_cb_;
     WriteCompleteCallback on_write_complete_cb_;
-    ReceiveCompleteCallback on_receive_complete_cb_;
+    ReadCompleteCallback on_read_complete_cb_;
 };
 
 } // namespace yohub

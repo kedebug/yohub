@@ -1,6 +1,5 @@
 #include "network/inet_address.h"
 #include "share/log.h"
-#include <arpa/inet.h>
 
 using namespace yohub;
 
