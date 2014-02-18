@@ -14,7 +14,7 @@ class EventPool;
 class Acceptor : boost::noncopyable {
   public:
     typedef boost::function<
-        void (int newfd, const InetAddress& peeraddr)> CallbackFn;
+        void (int newfd, const InetAddress& peeraddr)> NewConnectionCallback;
 
     Acceptor(EventPool* event_pool);
     ~Acceptor();
@@ -24,7 +24,7 @@ class Acceptor : boost::noncopyable {
 
     void SetAndBind(const InetAddress& bindaddr);
 
-    void SetNewConnectionCallback(const CallbackFn& callback_fn) {
+    void SetNewConnectionCallback(const NewConnectionCallback& callback_fn) {
         on_new_connection_ = callback_fn;
     }
 
@@ -34,7 +34,7 @@ class Acceptor : boost::noncopyable {
     Socket accept_socket_; 
     Channel accept_channel_;
 
-    CallbackFn on_new_connection_;
+    NewConnectionCallback on_new_connection_;
 };
 
 } // namespace yohub

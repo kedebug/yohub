@@ -8,6 +8,7 @@
 namespace yohub {
 
 class EventPool;
+
 class Channel : boost::noncopyable {
   public:
     typedef boost::function<void()> CallbackFn;
@@ -44,6 +45,10 @@ class Channel : boost::noncopyable {
         write_callback_ = callback_fn;
     }
 
+    void SetCloseCallback(const CallbackFn& callback_fn) {
+        close_callback_ = callback_fn;
+    }
+
   private:
     void Update();
 
@@ -57,9 +62,8 @@ class Channel : boost::noncopyable {
     EventPool* event_pool_;
 
     CallbackFn read_callback_;
-    CallbackFn read_completion_cb_;
     CallbackFn write_callback_;
-    CallbackFn write_completion_cb_;
+    CallbackFn close_callback_;
 };
 
 } // namespace yohub
