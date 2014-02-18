@@ -20,7 +20,7 @@ class InetAddress {
     }
 
     uint16_t port() const {
-        return ::ntohs(inet_addr_.sin_port);
+        return ntohs(inet_addr_.sin_port);
     }
 
     std::string ip() const {

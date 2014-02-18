@@ -3,12 +3,12 @@
 
 #include "network/inet_address.h"
 #include "network/callbacks.h"
+#include "network/channel.h"
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
 
 namespace yohub {
 
-class Channel;
 class EventPool;
 
 class AsyncConnection : boost::noncopyable {
@@ -20,6 +20,12 @@ class AsyncConnection : boost::noncopyable {
     ~AsyncConnection();
 
     void Write();
+    void Connected();
+    void Destroyed();
+
+    void SetConnectionCallback(const ConnectionCallback& callback);
+    void SetWriteCompleteCallback(const WriteCompleteCallback& callback);
+    void SetReadCompleteCallback(const ReadCompleteCallback& callback);
 
   private:
     void OnRead();

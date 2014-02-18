@@ -1,5 +1,4 @@
 #include "network/async_connection.h"
-#include "network/channel.h"
 #include "network/event_pool.h"
 #include <boost/bind.hpp>
 
@@ -21,6 +20,11 @@ AsyncConnection::AsyncConnection(EventPool* event_pool,
 }
 
 void AsyncConnection::Write() {
+}
+
+void AsyncConnection::Connected() {
+    channel_.EnableRead();
+    on_connection_cb_(this);
 }
 
 void AsyncConnection::OnRead() {

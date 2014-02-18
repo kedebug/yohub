@@ -33,7 +33,7 @@ class AsyncServer : boost::noncopyable {
     volatile int num_connections_;
     ConnectionMap connections_;
     Acceptor acceptor_;
-    InetAddress local_addr_;
+    InetAddress bind_addr_;
 
     ConnectionCallback on_connection_cb_;
     WriteCompleteCallback on_write_complete_cb_;

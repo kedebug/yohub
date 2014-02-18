@@ -1,6 +1,8 @@
 #ifndef _YOHUB_NETWORK_CALLBACKS_H_
 #define _YOHUB_NETWORK_CALLBACKS_H_
 
+#include <boost/function.hpp>
+
 namespace yohub {
 
 class AsyncConnection;

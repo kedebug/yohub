@@ -79,3 +79,14 @@ int Socket::CreateNonblockingSocket() {
     }
     return newfd;
 }
+
+struct sockaddr_in Socket::GetSocketName(int sockfd) {
+    struct sockaddr_in sa;
+    socklen_t len = sizeof(sa);
+
+    memset(&sa, 0, sizeof(sa));
+    if (::getsockname(sockfd, reinterpret_cast<sockaddr*>(&sa), &len) < 0) {
+        LOG_WARNING("GetSocketName failed, error: %s", strerror(errno));
+    }
+    return sa;
+}

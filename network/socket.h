@@ -1,6 +1,7 @@
 #ifndef _YOHUB_NETWORK_SOCKET_H_
 #define _YOHUB_NETWORK_SOCKET_H_
 
+#include <netinet/in.h>
 #include <boost/noncopyable.hpp>
 
 namespace yohub {
@@ -24,6 +25,7 @@ class Socket : boost::noncopyable {
     int fd() const { return socket_fd_; }
 
     static int CreateNonblockingSocket();
+    static struct sockaddr_in GetSocketName(int sockfd);
 
   private:
     const int socket_fd_;

@@ -10,7 +10,7 @@ AsyncServer::AsyncServer(EventPool* event_pool, const InetAddress& bindaddr)
       started_(0),
       num_connections_(0),
       acceptor_(event_pool_),
-      local_addr_(bindaddr)
+      bind_addr_(bindaddr)
 {
     acceptor_.SetNewConnectionCallback(
         boost::bind(&AsyncServer::OnNewConnection, this, _1, _2));
@@ -21,13 +21,22 @@ AsyncServer::~AsyncServer() {
 
 void AsyncServer::Start() {
     if (AtomicSetValue(started_, 1) == 0) {
-        acceptor_.SetAndBind(local_addr_);
+        acceptor_.SetAndBind(bind_addr_);
         acceptor_.Listen();
         LOG_TRACE("server started, ip:port=%s:%u", 
-            local_addr_.ip().c_str(), local_addr_.port());
+            bind_addr_.ip().c_str(), bind_addr_.port());
     }
 }
 
 void AsyncServer::OnNewConnection(int sockfd, const InetAddress& peeraddr) {
-    AtomicInc(num_connections_); 
+    InetAddress local_addr(Socket::GetSocketName(sockfd));
+    AsyncConnection* new_conn = 
+        new AsyncConnection(event_pool_, sockfd, local_addr, peeraddr);
+    
+    new_conn->SetConnectionCallback(on_connection_cb_);
+    new_conn->SetWriteCompleteCallback(on_write_complete_cb_);
+    new_conn->SetReadCompleteCallback(on_read_complete_cb_);
+
+    connections_[AtomicInc(num_connections_)] = new_conn;
+    new_conn->Connected();
 }
