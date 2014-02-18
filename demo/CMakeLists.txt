@@ -1,0 +1,2 @@
+add_executable(demo_echo_server echo_server.cc)
+target_link_libraries(demo_echo_server yohub)
