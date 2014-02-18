@@ -19,9 +19,9 @@ class AsyncServer : boost::noncopyable {
 
     void Start();
 
-    void SetConnectionCallback(const ConnectionCallback& callback);
-    void SetWriteCompletionCallback(const WriteCompletionCallback& callback);
-    void SetReadCompletionCallback(const ReadCompletionCallback& callback);
+    void SetConnectionCallback(const ConnectionCallback& callback) {}
+    void SetWriteCompletionCallback(const WriteCompletionCallback& callback) {}
+    void SetReadCompletionCallback(const ReadCompletionCallback& callback) {}
 
   private:
     // thread-safe:

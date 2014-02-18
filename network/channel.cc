@@ -62,3 +62,6 @@ bool Channel::WriteAllowed() {
 void Channel::Update() {
     event_pool_->AttachChannel(this);
 }
+
+void Channel::EventHandler() {
+}

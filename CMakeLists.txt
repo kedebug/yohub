@@ -44,3 +44,4 @@ set_target_properties(yohub PROPERTIES OUTPUT_NAME yohub)
 install(TARGETS yohub DESTINATION lib)
 
 add_subdirectory(test)
+add_subdirectory(demo)
