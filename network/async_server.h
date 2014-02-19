@@ -19,12 +19,19 @@ class AsyncServer : boost::noncopyable {
 
     void Start();
 
-    void SetConnectionCallback(const ConnectionCallback& callback) {}
-    void SetWriteCompletionCallback(const WriteCompletionCallback& callback) {}
-    void SetReadCompletionCallback(const ReadCompletionCallback& callback) {}
+    void SetConnectionCallback(const ConnectionCallback& callback) {
+        on_connection_cb_ = callback;
+    }
+
+    void SetWriteCompletionCallback(const WriteCompletionCallback& callback) {
+        on_write_completion_cb_ = callback;
+    }
+
+    void SetReadCompletionCallback(const ReadCompletionCallback& callback) {
+        on_read_completion_cb_ = callback;
+    }
 
   private:
-    // thread-safe:
     // our acceptor only runs on a fixed thread.
     void OnNewConnection(int sockfd, const InetAddress& peeraddr);
 

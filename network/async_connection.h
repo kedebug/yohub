@@ -23,9 +23,17 @@ class AsyncConnection : boost::noncopyable {
     void Connected();
     void Destroyed();
 
-    void SetConnectionCallback(const ConnectionCallback& callback) {}
-    void SetWriteCompletionCallback(const WriteCompletionCallback& callback) {}
-    void SetReadCompletionCallback(const ReadCompletionCallback& callback) {}
+    void SetConnectionCallback(const ConnectionCallback& callback) {
+        on_connection_cb_ = callback;
+    }
+
+    void SetWriteCompletionCallback(const WriteCompletionCallback& callback) {
+        on_write_completion_cb_ = callback;
+    }
+
+    void SetReadCompletionCallback(const ReadCompletionCallback& callback) {
+        on_read_completion_cb_ = callback;
+    }
 
   private:
     void OnRead();

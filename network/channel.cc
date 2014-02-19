@@ -64,4 +64,33 @@ void Channel::Update() {
 }
 
 void Channel::EventHandler() {
+    int revents = AtomicGetValue(revents_);
+
+    LOG_TRACE("fd=0x%x: %s", fd_, EventsToString(revents).c_str());
+
+    if ((revents & EPOLLHUP) && !(revents & EPOLLIN)) {
+        if (close_callback_)
+            close_callback_();
+    }
+    if (revents & (EPOLLIN | EPOLLPRI | EPOLLRDHUP)) {
+        if (read_callback_) 
+            read_callback_();
+    }
+    if (revents & EPOLLOUT) {
+        if (write_callback_)
+            write_callback_();
+    }
+}
+
+std::string Channel::EventsToString(int events) {
+    std::string result;
+    
+    if (events & EPOLLIN)   result += "IN ";
+    if (events & EPOLLOUT)  result += "OUT ";
+    if (events & EPOLLPRI)  result += "PRI ";
+    if (events & EPOLLHUP)  result += "HUP ";
+    if (events & EPOLLRDHUP) result += "RDHUP ";
+    if (events & EPOLLERR)  result += "ERR ";
+
+    return result;
 }

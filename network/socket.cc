@@ -43,7 +43,7 @@ int Socket::Accept(InetAddress* peeraddr) {
     if (newfd < 0) {
         if (errno == EAGAIN || errno == ECONNABORTED)
             goto retry;
-        LOG_WARNING("accept failed, error: %s", strerror(errno));
+        LOG_WARN("accept failed, error: %s", strerror(errno));
     } else {
         peeraddr->SetSockAddr(sa);
     }
@@ -86,7 +86,7 @@ struct sockaddr_in Socket::GetSocketName(int sockfd) {
 
     memset(&sa, 0, sizeof(sa));
     if (::getsockname(sockfd, reinterpret_cast<sockaddr*>(&sa), &len) < 0) {
-        LOG_WARNING("GetSocketName failed, error: %s", strerror(errno));
+        LOG_WARN("GetSocketName failed, error: %s", strerror(errno));
     }
     return sa;
 }

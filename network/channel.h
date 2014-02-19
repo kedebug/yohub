@@ -4,6 +4,7 @@
 #include "share/atomic.h"
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
+#include <string>
 
 namespace yohub {
 
@@ -48,6 +49,8 @@ class Channel : boost::noncopyable {
     void SetCloseCallback(const CallbackFn& callback_fn) {
         close_callback_ = callback_fn;
     }
+
+    static std::string EventsToString(int events);
 
   private:
     void Update();

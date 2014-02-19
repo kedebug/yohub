@@ -14,7 +14,7 @@ namespace yohub {
 #else
 #define LOG_DEBUG(fmt,...)
 #endif
-#define LOG_WARNING(fmt,...) fprintf(stderr,"[WARNING][%s:%d]" fmt "\n",__FILE__,__LINE__,##__VA_ARGS__)
+#define LOG_WARN(fmt,...) fprintf(stderr,"[WARNING][%s:%d]" fmt "\n",__FILE__,__LINE__,##__VA_ARGS__)
 #define LOG_FATAL(fmt,...) fprintf(stderr,"[FATAL][%s:%d]" fmt "\n",__FILE__,__LINE__,##__VA_ARGS__);abort();
 
 } // namespace yohub
