@@ -6,6 +6,7 @@ using namespace yohub;
 
 AsyncConnection::AsyncConnection(EventPool* event_pool,
                                  int socket_fd,
+                                 int conn_id,
                                  const InetAddress& local_addr,
                                  const InetAddress& peer_addr)
     : event_pool_(event_pool),
@@ -13,6 +14,7 @@ AsyncConnection::AsyncConnection(EventPool* event_pool,
       channel_(event_pool_, socket_fd),
       local_addr_(local_addr),
       peer_addr_(peer_addr),
+      id_(conn_id),
       refs_(0),
       is_connected_(0)
 {

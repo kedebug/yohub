@@ -1,4 +1,3 @@
-#include "share/atomic.h"
 #include "share/log.h"
 #include "network/async_server.h"
 #include <boost/bind.hpp>
@@ -18,6 +17,12 @@ AsyncServer::AsyncServer(EventPool* event_pool,
 }
 
 AsyncServer::~AsyncServer() {
+    for (ConnectionMap::iterator iter = connections_.begin();
+         iter != connections_.end(); iter++) {
+        iter->second->Destroy();
+        assert(iter->second->refs() == 1);
+        iter->second->Release();
+    }
 }
 
 void AsyncServer::Start() {
@@ -32,13 +37,25 @@ void AsyncServer::Start() {
 void AsyncServer::OnNewConnection(int sockfd, 
                                   const InetAddress& peeraddr) {
     InetAddress local_addr(Socket::GetSocketName(sockfd));
-    AsyncConnection* new_conn = new 
-        AsyncConnection(event_pool_, sockfd, local_addr, peeraddr);
+    AsyncConnection* new_conn = new AsyncConnection(
+        event_pool_, sockfd, AtomicInc(num_connections_),local_addr, peeraddr);
     
     new_conn->SetConnectionCallback(on_connection_cb_);
     new_conn->SetWriteCompletionCallback(on_write_completion_cb_);
     new_conn->SetReadCompletionCallback(on_read_completion_cb_);
+    new_conn->SetCloseCallback(
+        boost::bind(&AsyncServer::OnCloseConnection, this, _1));
 
-    connections_[AtomicInc(num_connections_)] = new_conn;
+    new_conn->Acquire();
     new_conn->Establish();
+
+    connections_[new_conn->id()] = new_conn;
+}
+
+void AsyncServer::OnCloseConnection(AsyncConnection* conn) {
+    ConnectionMap::iterator iter = connections_.find(conn->id());
+    assert(iter != connections_.end());
+    connections_.erase(iter);
+    conn->Destroy();
+    conn->Release();
 }

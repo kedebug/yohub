@@ -10,6 +10,7 @@ class AsyncConnection;
 typedef boost::function<void (AsyncConnection*)> ConnectionCallback;
 typedef boost::function<void (AsyncConnection*)> WriteCompletionCallback;
 typedef boost::function<void (AsyncConnection*)> ReadCompletionCallback;
+typedef boost::function<void (AsyncConnection*)> CloseCallback;
 
 } // namespace yohub
 

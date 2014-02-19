@@ -5,6 +5,7 @@
 #include "network/socket.h"
 #include "network/callbacks.h"
 #include "network/channel.h"
+#include "share/atomic.h"
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
 
@@ -16,6 +17,7 @@ class AsyncConnection : boost::noncopyable {
   public:
     AsyncConnection(EventPool* event_pool,
                     int socket_fd,
+                    int conn_id,
                     const InetAddress& local_addr,
                     const InetAddress& peer_addr);
     ~AsyncConnection();
@@ -36,6 +38,10 @@ class AsyncConnection : boost::noncopyable {
         on_read_completion_cb_ = callback;
     }
 
+    void SetCloseCallback(const CloseCallback& callback) {
+        on_close_cb_ = callback;
+    }
+
     void Acquire() {
         AtomicInc(refs_);
     }
@@ -43,6 +49,14 @@ class AsyncConnection : boost::noncopyable {
     void Release() {
         if (AtomicDec(refs_) == 0)
             delete this;
+    }
+    
+    int id() const { 
+        return id_; 
+    }
+
+    int refs() { 
+        return AtomicGetValue(refs_); 
     }
 
   private:
@@ -55,12 +69,14 @@ class AsyncConnection : boost::noncopyable {
     Channel channel_;
     InetAddress local_addr_;
     InetAddress peer_addr_;
+    const int id_;
     volatile int refs_;
     volatile int is_connected_;
 
     ConnectionCallback on_connection_cb_;
     WriteCompletionCallback on_write_completion_cb_;
     ReadCompletionCallback on_read_completion_cb_;
+    CloseCallback on_close_cb_;
 };
 
 } // namespace yohub

@@ -34,6 +34,7 @@ class AsyncServer : boost::noncopyable {
   private:
     // our acceptor only runs on a fixed thread.
     void OnNewConnection(int sockfd, const InetAddress& peeraddr);
+    void OnCloseConnection(AsyncConnection* conn);
 
     EventPool* event_pool_;
     volatile int started_;
