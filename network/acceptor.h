@@ -33,6 +33,7 @@ class Acceptor : boost::noncopyable {
     EventPool* event_pool_;
     Socket accept_socket_; 
     Channel accept_channel_;
+    int idle_fd_;
 
     NewConnectionCallback on_new_connection_;
 };

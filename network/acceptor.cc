@@ -2,6 +2,7 @@
 #include "share/log.h"
 #include "share/atomic.h"
 #include <boost/bind.hpp>
+#include <fcntl.h>
 
 using namespace yohub;
 
@@ -9,7 +10,8 @@ Acceptor::Acceptor(EventPool* event_pool)
     : bind_(0),
       event_pool_(event_pool),
       accept_socket_(Socket::CreateNonblockingSocket()),
-      accept_channel_(event_pool, accept_socket_.fd())
+      accept_channel_(event_pool, accept_socket_.fd()),
+      idle_fd_(::open("/dev/null", O_RDONLY | O_CLOEXEC))
 {
     accept_channel_.SetReadCallback(boost::bind(&Acceptor::OnAccept, this));
 }
@@ -43,9 +45,16 @@ void Acceptor::OnAccept() {
             on_new_connection_(newfd, peeraddr);
         } else {
             ::close(newfd);
-            LOG_WARNING("the new connection callback should set");
+            LOG_WARN("the new connection callback should set");
         }
     } else {
-        LOG_WARNING("OnAccept failed, fd=%d", accept_socket_.fd());
+        LOG_WARN("OnAccept failed, fd=%d", accept_socket_.fd());
+        if (errno == EMFILE) {
+            ::close(idle_fd_);
+            idle_fd_ = ::accept(accept_socket_.fd(), NULL, NULL);
+            ::close(idle_fd_);
+            idle_fd_ = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+            LOG_WARN("reached max file descriptor");
+        }
     }
 }
