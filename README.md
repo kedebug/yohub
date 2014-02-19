@@ -1,2 +1,2 @@
 ## YoHub
-A lightweight, asynchronous and event-driven network programming framework. 
+A lightweight, asynchronous event-driven network programming framework. 
