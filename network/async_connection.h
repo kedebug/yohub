@@ -2,6 +2,7 @@
 #define _YOHUB_NETWORK_ASYNC_CONNECTION_H_
 
 #include "network/inet_address.h"
+#include "network/socket.h"
 #include "network/callbacks.h"
 #include "network/channel.h"
 #include <boost/noncopyable.hpp>
@@ -20,8 +21,8 @@ class AsyncConnection : boost::noncopyable {
     ~AsyncConnection();
 
     void Write();
-    void Connected();
-    void Destroyed();
+    void Establish();
+    void Destroy();
 
     void SetConnectionCallback(const ConnectionCallback& callback) {
         on_connection_cb_ = callback;
@@ -35,16 +36,27 @@ class AsyncConnection : boost::noncopyable {
         on_read_completion_cb_ = callback;
     }
 
+    void Acquire() {
+        AtomicInc(refs_);
+    }
+
+    void Release() {
+        if (AtomicDec(refs_) == 0)
+            delete this;
+    }
+
   private:
     void OnRead();
     void OnWrite();
     void OnClose();
 
     EventPool* event_pool_;
-    int socket_fd_;
+    Socket socket_;
     Channel channel_;
     InetAddress local_addr_;
     InetAddress peer_addr_;
+    volatile int refs_;
+    volatile int is_connected_;
 
     ConnectionCallback on_connection_cb_;
     WriteCompletionCallback on_write_completion_cb_;

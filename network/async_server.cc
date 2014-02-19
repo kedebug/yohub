@@ -5,7 +5,8 @@
 
 using namespace yohub;
 
-AsyncServer::AsyncServer(EventPool* event_pool, const InetAddress& bindaddr)
+AsyncServer::AsyncServer(EventPool* event_pool, 
+                         const InetAddress& bindaddr)
     : event_pool_(event_pool),
       started_(0),
       num_connections_(0),
@@ -28,15 +29,16 @@ void AsyncServer::Start() {
     }
 }
 
-void AsyncServer::OnNewConnection(int sockfd, const InetAddress& peeraddr) {
+void AsyncServer::OnNewConnection(int sockfd, 
+                                  const InetAddress& peeraddr) {
     InetAddress local_addr(Socket::GetSocketName(sockfd));
-    AsyncConnection* new_conn = 
-        new AsyncConnection(event_pool_, sockfd, local_addr, peeraddr);
+    AsyncConnection* new_conn = new 
+        AsyncConnection(event_pool_, sockfd, local_addr, peeraddr);
     
     new_conn->SetConnectionCallback(on_connection_cb_);
     new_conn->SetWriteCompletionCallback(on_write_completion_cb_);
     new_conn->SetReadCompletionCallback(on_read_completion_cb_);
 
     connections_[AtomicInc(num_connections_)] = new_conn;
-    new_conn->Connected();
+    new_conn->Establish();
 }
