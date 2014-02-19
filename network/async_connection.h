@@ -5,6 +5,7 @@
 #include "network/socket.h"
 #include "network/callbacks.h"
 #include "network/channel.h"
+#include "network/chain_buffer.h"
 #include "share/atomic.h"
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
@@ -51,13 +52,8 @@ class AsyncConnection : boost::noncopyable {
             delete this;
     }
     
-    int id() const { 
-        return id_; 
-    }
-
-    int refs() { 
-        return AtomicGetValue(refs_); 
-    }
+    int id() const { return id_; }
+    int refs() { return AtomicGetValue(refs_); }
 
   private:
     void OnRead();
@@ -69,9 +65,13 @@ class AsyncConnection : boost::noncopyable {
     Channel channel_;
     InetAddress local_addr_;
     InetAddress peer_addr_;
+
     const int id_;
     volatile int refs_;
     volatile int is_connected_;
+
+    ChainBuffer in_buffer_;
+    ChainBuffer out_buffer_;
 
     ConnectionCallback on_connection_cb_;
     WriteCompletionCallback on_write_completion_cb_;
