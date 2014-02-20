@@ -7,6 +7,7 @@
 #include "network/channel.h"
 #include "network/buffer.h"
 #include "share/atomic.h"
+#include <string>
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
 
@@ -23,7 +24,8 @@ class AsyncConnection : boost::noncopyable {
                     const InetAddress& peer_addr);
     ~AsyncConnection();
 
-    void Write();
+    void Write(const char* data, size_t size);
+
     void Establish();
     void Destroy();
 
@@ -56,6 +58,8 @@ class AsyncConnection : boost::noncopyable {
     int refs() { return AtomicGetValue(refs_); }
 
   private:
+    void QueueWrite(const std::string& s);
+
     void OnRead();
     void OnWrite();
     void OnClose();

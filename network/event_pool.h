@@ -11,6 +11,7 @@ namespace yohub {
 
 class EventPool : boost::noncopyable {
   public:
+    typedef ThreadPool::Job Job;
     typedef EPoller::ChannelList ChannelList;
 
     EventPool(int pollers, int backends);
@@ -21,6 +22,8 @@ class EventPool : boost::noncopyable {
 
     void AttachChannel(Channel* channel);
     void DetachChannel(Channel* channel);
+
+    void PostJob(const Job& job, const Channel& channel);
 
     void PollWrapper(int which);
 

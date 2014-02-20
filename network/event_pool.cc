@@ -30,6 +30,10 @@ void EventPool::Run() {
 void EventPool::Stop() {
 }
 
+void EventPool::PostJob(const Job& job, const Channel& channel) {
+    backend_handler_.Schedule(job, channel.id() % num_backends_);
+}
+
 void EventPool::PollWrapper(int which) {
     ChannelList active_channels;
     EPoller& poller = pollers_[which];

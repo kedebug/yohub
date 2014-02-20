@@ -26,7 +26,10 @@ AsyncConnection::AsyncConnection(EventPool* event_pool,
 AsyncConnection::~AsyncConnection() {
 }
 
-void AsyncConnection::Write() {
+void AsyncConnection::Write(const char* data, size_t size) {
+    std::string s(data, size);
+    event_pool_->PostJob(
+        boost::bind(&AsyncConnection::QueueWrite, this, s), channel_);
 }
 
 void AsyncConnection::Establish() {
@@ -45,6 +48,10 @@ void AsyncConnection::Destroy() {
     } else {
         LOG_WARN("Connection already destroyed");
     }
+}
+
+void AsyncConnection::QueueWrite(const std::string& s) {
+
 }
 
 void AsyncConnection::OnRead() {
