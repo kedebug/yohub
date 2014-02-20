@@ -5,7 +5,7 @@
 #include "network/socket.h"
 #include "network/callbacks.h"
 #include "network/channel.h"
-#include "network/chain_buffer.h"
+#include "network/buffer.h"
 #include "share/atomic.h"
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
@@ -70,8 +70,8 @@ class AsyncConnection : boost::noncopyable {
     volatile int refs_;
     volatile int is_connected_;
 
-    ChainBuffer in_buffer_;
-    ChainBuffer out_buffer_;
+    Buffer in_buffer_;
+    Buffer out_buffer_;
 
     ConnectionCallback on_connection_cb_;
     WriteCompletionCallback on_write_completion_cb_;

@@ -3,3 +3,6 @@ target_link_libraries(share_atomic_test yohub)
 
 add_executable(share_queue_test share_queue_test.cc)
 target_link_libraries(share_queue_test yohub)
+
+add_executable(net_buffer_test net_buffer_test.cc)
+target_link_libraries(net_buffer_test yohub)
