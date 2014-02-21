@@ -14,6 +14,9 @@ EventPool::EventPool(int pollers, int backends)
 }
 
 EventPool::~EventPool() {
+    if (AtomicGetValue(running_) == 1) {
+        Stop();
+    }
 }
 
 void EventPool::Run() {
@@ -28,6 +31,10 @@ void EventPool::Run() {
 }
 
 void EventPool::Stop() {
+    if (AtomicSetValue(running_, 1) == 0) {
+        poller_handler_.Stop();
+        backend_handler_.Stop();
+    }
 }
 
 void EventPool::PostJob(const Job& job, const Channel& channel) {
@@ -38,7 +45,7 @@ void EventPool::PollWrapper(int which) {
     ChannelList active_channels;
     EPoller& poller = pollers_[which];
 
-    while (running_) {
+    while (AtomicGetValue(running_) != 0) {
         active_channels.clear();
         poller.Poll(kPollTimeMs, &active_channels);
 
