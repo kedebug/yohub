@@ -12,6 +12,6 @@ int main() {
     std::string s = buffer.TakeAsString();
     printf("result=%s, expected=%s\n", 
             s.c_str(), "1234512345");
-    printf("buffer.size=%d, expected=%d\n", 
+    printf("buffer.size=%zd, expected=%d\n", 
             buffer.WritableBytes(), 10);
 }

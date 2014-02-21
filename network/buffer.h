@@ -15,6 +15,11 @@ class Buffer {
 
     void Append(const char* data, size_t bytes);
 
+    void ReadableForward(size_t n) {
+        assert(reader_idx_ + n < writer_idx_);
+        reader_idx_ += n;
+    }
+
     size_t ReadableBytes() const {
         return writer_idx_ - reader_idx_;
     }
