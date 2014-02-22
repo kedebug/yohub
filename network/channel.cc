@@ -9,7 +9,7 @@ volatile int Channel::s_sequence_number_ = 0;
 Channel::Channel(EventPool* event_pool, int fd)
     : id_(AtomicInc(s_sequence_number_)), 
       fd_(fd),
-      events_(0),
+      events_(EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET),
       revents_(0),
       status_(0),
       event_pool_(event_pool)
@@ -17,10 +17,11 @@ Channel::Channel(EventPool* event_pool, int fd)
 }
 
 Channel::~Channel() {
+    LOG_TRACE("channel destructor, id=%d, fd=%d", id_, fd_);
 }
 
 void Channel::Register() {
-    Update();
+    event_pool_->AttachChannel(this);
 }
 
 void Channel::Unregister() {
@@ -35,38 +36,11 @@ void Channel::SetReadyEvents(int revents) {
     AtomicSetValue(revents_, revents);
 }
 
-void Channel::EnableRead() {
-    AtomicSetValue(events_, events() | EPOLLIN | EPOLLPRI);
-    Update();
-}
-
-void Channel::EnableWrite() {
-    AtomicSetValue(events_, events() | EPOLLOUT);
-    Update();
-}
-
-void Channel::DisableWrite() {
-    AtomicSetValue(events_, events() & (~EPOLLOUT));
-    Update();
-}
-
-void Channel::DisableAll() {
-    AtomicSetValue(events_, 0);
-    Update();
-}
-
-bool Channel::WriteAllowed() {
-    return AtomicGetValue(events_) & EPOLLOUT;
-}
-
-void Channel::Update() {
-    event_pool_->AttachChannel(this);
-}
-
 void Channel::EventHandler() {
     int revents = AtomicGetValue(revents_);
 
-    LOG_TRACE("fd=0x%x: %s", fd_, EventsToString(revents).c_str());
+    LOG_TRACE("this=%x, id=%d, fd=%d: %s", 
+        this, id_, fd_, EventsToString(revents).c_str());
 
     if ((revents & EPOLLHUP) && !(revents & EPOLLIN)) {
         if (close_callback_)

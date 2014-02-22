@@ -25,18 +25,10 @@ class Channel : boost::noncopyable {
     void SetStatus(int status);
     void SetReadyEvents(int revents);
 
-    void EnableRead(); 
-    void EnableWrite();
-    void DisableWrite();
-
-    void DisableAll();
-
-    bool WriteAllowed();
-
     int fd() const { return fd_; }
     int id() const { return id_; }
+    int events() const { return events_; }
     int status() { return AtomicGetValue(status_); }
-    int events() { return AtomicGetValue(events_); }
 
     void SetReadCallback(const CallbackFn& callback_fn) {
         read_callback_ = callback_fn;
@@ -53,13 +45,11 @@ class Channel : boost::noncopyable {
     static std::string EventsToString(int events);
 
   private:
-    void Update();
-
     static volatile int s_sequence_number_;
 
     const int id_;
     const int fd_;
-    volatile int events_;
+    const int events_;
     volatile int revents_;
     volatile int status_;
     EventPool* event_pool_;
