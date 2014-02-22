@@ -50,10 +50,15 @@ class AsyncConnection : boost::noncopyable {
     }
 
     void Release() {
-        if (AtomicDec(refs_) == 0)
+        assert(refs() > 0);
+        if (AtomicDec(refs_) == 0) {
             delete this;
+        }
     }
     
+    const InetAddress& local_addr() { return local_addr_; }
+    const InetAddress& peer_addr()  { return peer_addr_; }
+
     int id() const { return id_; }
     int refs() { return AtomicGetValue(refs_); }
 

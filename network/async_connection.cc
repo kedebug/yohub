@@ -24,6 +24,8 @@ AsyncConnection::AsyncConnection(EventPool* event_pool,
 }
 
 AsyncConnection::~AsyncConnection() {
+    LOG_TRACE("Connecton destructor, %s:%d", 
+              peer_addr_.ip().c_str(), peer_addr_.port());
 }
 
 void AsyncConnection::Write(const char* data, size_t size) {
@@ -34,7 +36,7 @@ void AsyncConnection::Write(const char* data, size_t size) {
 
 void AsyncConnection::Establish() {
     if (AtomicSetValue(is_connected_, 1) == 0) {
-        channel_.EnableRead();
+        channel_.Register();
         this->Acquire();
         on_connection_cb_(this);
         this->Release();
@@ -45,10 +47,10 @@ void AsyncConnection::Establish() {
 
 void AsyncConnection::Destroy() {
     if (AtomicSetValue(is_connected_, 0) == 1) {
-        channel_.DisableAll();
         channel_.Unregister();
-    } else {
-        LOG_WARN("Connection already destroyed");
+        this->Acquire();
+        on_close_cb_(this);
+        this->Release();
     }
 }
 
@@ -57,11 +59,10 @@ void AsyncConnection::QueueWrite(const std::string& s) {
         LOG_WARN("Stop writing: onnection already destroyed.");
         return;
     }
-
     const char* data = s.data();
     size_t size = s.size();
 
-    if (!channel_.WriteAllowed() && out_buffer_.ReadableBytes() == 0) {
+    if (out_buffer_.ReadableBytes() == 0) {
         int result = ::write(channel_.fd(), data, size);
         if (result >= 0) {
             size -= result;
@@ -70,7 +71,7 @@ void AsyncConnection::QueueWrite(const std::string& s) {
                 on_write_completion_cb_(this);
                 this->Release();
         } else {
-            if (errno == EWOULDBLOCK) {
+            if (errno == EAGAIN) {
                 LOG_TRACE("Waiting for next write.");
             } else {
                 LOG_WARN("write error: %s", strerror(errno));
@@ -80,17 +81,18 @@ void AsyncConnection::QueueWrite(const std::string& s) {
 
     if (size > 0) {
         out_buffer_.Append(data + s.size() - size, size);
-        if (!channel_.WriteAllowed())
-            channel_.EnableWrite();
     }
 }
 
 void AsyncConnection::OnRead() {
-    int result = in_buffer_.ReadFd(channel_.fd());
+    bool ok = false;
+    int result = in_buffer_.ReadFd(channel_.fd(), &ok);
     if (result > 0) {
-        this->Acquire();
-        on_read_completion_cb_(this, &in_buffer_);
-        this->Release();
+        if (ok) {
+            this->Acquire();
+            on_read_completion_cb_(this, &in_buffer_);
+            this->Release();
+        }
     } else if (result == 0) {
         OnClose();
     } else {
@@ -99,15 +101,15 @@ void AsyncConnection::OnRead() {
 }
 
 void AsyncConnection::OnWrite() {
-    assert(channel_.WriteAllowed());
-
+    if (out_buffer_.ReadableBytes() == 0) {
+        return;
+    }
     Slice slice = out_buffer_.ToSlice();
     int result = ::write(channel_.fd(), slice.data(), slice.size());
     
     if (result > 0) {
         out_buffer_.ReadableForward(result);
         if (out_buffer_.ReadableBytes() == 0) {
-            channel_.DisableWrite();
             if (on_write_completion_cb_) {
                 this->Acquire();
                 on_write_completion_cb_(this);
@@ -121,11 +123,11 @@ void AsyncConnection::OnWrite() {
 
 void AsyncConnection::OnClose() {
     if (AtomicSetValue(is_connected_, 0) == 1) {
-        channel_.DisableAll();
+        channel_.Unregister();
         this->Acquire();
         on_close_cb_(this);
         this->Release();
     } else {
-        LOG_WARN("Connection never connected.");
+        LOG_WARN("Connection already destroyed.");
     }
 }

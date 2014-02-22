@@ -1,4 +1,5 @@
 #include "share/threadpool.h"
+#include "share/log.h"
 #include <vector>
 #include <boost/bind.hpp>
 
@@ -41,8 +42,9 @@ void ThreadPool::Stop() {
 }
 
 void ThreadPool::WorkHandler(int which) {
+    JobQueue::Container jobs;
     while (AtomicGetValue(running_) == 1) {
-        JobQueue::Container jobs;
+        jobs.clear();
         queues_[which].FetchAll(&jobs, 1);
 
         for (size_t i = 0; i < jobs.size(); i++) {

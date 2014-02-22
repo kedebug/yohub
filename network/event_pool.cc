@@ -50,6 +50,7 @@ void EventPool::PollWrapper(int which) {
         poller.Poll(kPollTimeMs, &active_channels);
 
         for (size_t i = 0; i < active_channels.size(); i++) {
+            //active_channels[i]->EventHandler();
             backend_handler_.Schedule(
                 boost::bind(&Channel::EventHandler, active_channels[i]),
                 active_channels[i]->id() % num_backends_);

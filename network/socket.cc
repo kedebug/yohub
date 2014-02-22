@@ -38,7 +38,8 @@ int Socket::Accept(InetAddress* peeraddr) {
     socklen_t len = sizeof(sa);
 
     memset(&sa, 0, sizeof(sa));
-    int newfd = ::accept(socket_fd_, reinterpret_cast<sockaddr*>(&sa), &len);
+    int newfd = ::accept4(socket_fd_, reinterpret_cast<sockaddr*>(&sa), &len,
+                          SOCK_NONBLOCK | SOCK_CLOEXEC);
 
     if (newfd < 0) {
         if (errno == EAGAIN || errno == ECONNABORTED)

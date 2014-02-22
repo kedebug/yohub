@@ -40,40 +40,19 @@ void EPoller::Poll(int timeout_ms, ChannelList* active_channels) {
 }
 
 void EPoller::AttachChannel(Channel* channel) {
-    int status = channel->status();
-
-    if (status == kNew || status == kDeleted) {
-        channel->SetStatus(kAdded);
-        UpdateChannel(EPOLL_CTL_ADD, channel);
-    } else {
-        assert(status == kAdded);
-        if (channel->events() == 0) {
-            UpdateChannel(EPOLL_CTL_DEL, channel);
-            channel->SetStatus(kDeleted);
-        } else {
-            UpdateChannel(EPOLL_CTL_MOD, channel);
-        }
-    }
-}
-
-void EPoller::DetachChannel(Channel* channel) {
-    int status = channel->status();
-
-    if (status == kAdded) {
-        UpdateChannel(EPOLL_CTL_DEL, channel);
-    }
-
-    channel->SetStatus(kNew);
-}
-
-void EPoller::UpdateChannel(int op, Channel* channel) {
     struct epoll_event ev;
 
     memset(&ev, 0, sizeof(ev));
     ev.events = channel->events();
     ev.data.ptr = channel;
 
-    if (::epoll_ctl(epoll_fd_, op, channel->fd(), &ev) < 0) {
-        LOG_FATAL("epoll_ctl error, op=%d", op);
+    if (::epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, channel->fd(), &ev) < 0) {
+        LOG_WARN("epoll_ctl_add error: %s", strerror(errno));
+    }
+}
+
+void EPoller::DetachChannel(Channel* channel) {
+    if (::epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, channel->fd(), NULL) < 0) {
+        LOG_WARN("epoll_ctl_del error: %s", strerror(errno));
     }
 }

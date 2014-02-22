@@ -17,7 +17,6 @@ Acceptor::Acceptor(EventPool* event_pool)
 }
 
 Acceptor::~Acceptor() {
-    accept_channel_.DisableAll();
     accept_channel_.Unregister();
 }
 
@@ -33,7 +32,7 @@ void Acceptor::Listen() {
     assert(AtomicGetValue(bind_));
 
     accept_socket_.Listen();
-    accept_channel_.EnableRead();
+    accept_channel_.Register();
 }
 
 void Acceptor::OnAccept() {
@@ -41,6 +40,7 @@ void Acceptor::OnAccept() {
     int newfd = accept_socket_.Accept(&peeraddr);
 
     if (newfd >= 0) {
+        LOG_TRACE("new connection, fd=%d", newfd);
         if (on_new_connection_) {
             on_new_connection_(newfd, peeraddr);
         } else {
