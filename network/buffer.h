@@ -11,7 +11,7 @@ class Buffer {
   public:
     Buffer();
 
-    int ReadFd(int fd);
+    int ReadFd(int fd, bool* ok);
 
     void Append(const char* data, size_t bytes);
 
