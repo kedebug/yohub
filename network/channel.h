@@ -26,7 +26,7 @@ class Channel : boost::noncopyable {
     void SetReadyEvents(int revents);
 
     int fd() const { return fd_; }
-    int id() const { return id_; }
+    uint32_t id() const { return id_; }
     int events() const { return events_; }
     int status() { return AtomicGetValue(status_); }
 
@@ -45,9 +45,9 @@ class Channel : boost::noncopyable {
     static std::string EventsToString(int events);
 
   private:
-    static volatile int s_sequence_number_;
+    static volatile uint32_t s_sequence_number_;
 
-    const int id_;
+    const uint32_t id_;
     const int fd_;
     const int events_;
     volatile int revents_;

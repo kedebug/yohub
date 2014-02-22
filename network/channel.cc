@@ -4,7 +4,7 @@
 
 using namespace yohub;
 
-volatile int Channel::s_sequence_number_ = 0;
+volatile uint32_t Channel::s_sequence_number_ = 0;
 
 Channel::Channel(EventPool* event_pool, int fd)
     : id_(AtomicInc(s_sequence_number_)), 
@@ -39,8 +39,8 @@ void Channel::SetReadyEvents(int revents) {
 void Channel::EventHandler() {
     int revents = AtomicGetValue(revents_);
 
-    LOG_TRACE("this=%x, id=%d, fd=%d: %s", 
-        this, id_, fd_, EventsToString(revents).c_str());
+    LOG_TRACE("id=%u, fd=%d: %s", 
+        id_, fd_, EventsToString(revents).c_str());
 
     if ((revents & EPOLLHUP) && !(revents & EPOLLIN)) {
         if (close_callback_)
