@@ -67,3 +67,8 @@ void EventPool::DetachChannel(Channel* channel) {
     int which = channel->id() % num_pollers_;
     pollers_[which].DetachChannel(channel);
 }
+
+void EventPool::DisableChannel(Channel* channel) {
+    int which = channel->id() % num_pollers_;
+    pollers_[which].DisableChannel(channel);
+}

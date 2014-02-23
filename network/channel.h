@@ -19,6 +19,7 @@ class Channel : boost::noncopyable {
 
     void Register();
     void Unregister();
+    void DisableAll();
 
     void EventHandler();
 

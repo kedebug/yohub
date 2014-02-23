@@ -22,6 +22,7 @@ class EPoller : boost::noncopyable {
     void Close();
     void AttachChannel(Channel* channel);
     void DetachChannel(Channel* channel);
+    void DisableChannel(Channel* channel);
 
   private:
     int epoll_fd_;

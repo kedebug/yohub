@@ -28,6 +28,10 @@ void Channel::Unregister() {
     event_pool_->DetachChannel(this);
 }
 
+void Channel::DisableAll() {
+    event_pool_->DisableChannel(this);
+}
+
 void Channel::SetStatus(int status) {
     AtomicSetValue(status_, status);
 }

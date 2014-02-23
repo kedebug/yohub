@@ -22,6 +22,7 @@ class EventPool : boost::noncopyable {
 
     void AttachChannel(Channel* channel);
     void DetachChannel(Channel* channel);
+    void DisableChannel(Channel* channel);
 
     void PostJob(const Job& job, const Channel& channel);
 

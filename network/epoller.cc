@@ -46,13 +46,31 @@ void EPoller::AttachChannel(Channel* channel) {
     ev.events = channel->events();
     ev.data.ptr = channel;
 
+    channel->SetStatus(kAdded);
+
     if (::epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, channel->fd(), &ev) < 0) {
         LOG_WARN("epoll_ctl_add error: %s", strerror(errno));
     }
 }
 
 void EPoller::DetachChannel(Channel* channel) {
+    channel->SetStatus(kDeleted);
+
     if (::epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, channel->fd(), NULL) < 0) {
         LOG_WARN("epoll_ctl_del error: %s", strerror(errno));
+    }
+}
+
+void EPoller::DisableChannel(Channel* channel) {
+    if (channel->status() == kAdded) {
+        struct epoll_event ev;
+
+        memset(&ev, 0, sizeof(ev));
+        ev.events = 0;
+        ev.data.ptr = channel;
+
+        if (::epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, channel->fd(), &ev) < 0) {
+            LOG_WARN("epoll_ctl_mod error: %s", strerror(errno));
+        }
     }
 }
