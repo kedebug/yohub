@@ -20,6 +20,8 @@ EventPool::~EventPool() {
 }
 
 void EventPool::Run() {
+    AtomicSetValue(running_, 1);
+
     poller_handler_.Start(num_pollers_);
     backend_handler_.Start(num_backends_);
 
@@ -31,7 +33,7 @@ void EventPool::Run() {
 }
 
 void EventPool::Stop() {
-    if (AtomicSetValue(running_, 1) == 0) {
+    if (AtomicSetValue(running_, 0) == 1) {
         poller_handler_.Stop();
         backend_handler_.Stop();
     }
@@ -45,12 +47,11 @@ void EventPool::PollWrapper(int which) {
     ChannelList active_channels;
     EPoller& poller = pollers_[which];
 
-    while (AtomicGetValue(running_) != 0) {
+    while (AtomicGetValue(running_) == 1) {
         active_channels.clear();
         poller.Poll(kPollTimeMs, &active_channels);
 
         for (size_t i = 0; i < active_channels.size(); i++) {
-            //active_channels[i]->EventHandler();
             backend_handler_.Schedule(
                 boost::bind(&Channel::EventHandler, active_channels[i]),
                 active_channels[i]->id() % num_backends_);

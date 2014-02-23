@@ -38,12 +38,14 @@ void ThreadPool::Stop() {
     if (AtomicSetValue(running_, 0) == 1) {
         for (size_t i = 0; i < threads_.size(); i++)
             threads_[i].Join();
+        assert(AtomicGetValue(job_count_) == 0);
     }
 }
 
 void ThreadPool::WorkHandler(int which) {
     JobQueue::Container jobs;
-    while (AtomicGetValue(running_) == 1) {
+    while (AtomicGetValue(running_) == 1 ||
+           AtomicGetValue(job_count_) > 0) {
         jobs.clear();
         queues_[which].FetchAll(&jobs, 1);
 

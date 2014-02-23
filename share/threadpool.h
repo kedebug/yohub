@@ -1,7 +1,6 @@
 #ifndef _YOHUB_SHARE_THREADPOOL_H_
 #define _YOHUB_SHARE_THREADPOOL_H_
 
-#include "share/async.h"
 #include "share/atomic.h"
 #include "share/thread.h"
 #include "share/mutex.h"
