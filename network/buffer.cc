@@ -10,7 +10,7 @@ Buffer::Buffer()
       writer_idx_(0)
 { }
 
-int Buffer::ReadFd(int fd, bool* ok) {
+int Buffer::ReadFd(int fd, int* saved_errno) {
     char reserve[65536];
     int total = 0;
 
@@ -18,21 +18,13 @@ int Buffer::ReadFd(int fd, bool* ok) {
         int result = ::read(fd, reserve, sizeof(reserve));
 
         if (result == -1) {
-            *ok = false;
-            if (errno == EAGAIN) {
-                return total;
-            } else {
+            *saved_errno = errno;
+            if (errno != EAGAIN) {
                 LOG_WARN("read error occur: %s", strerror(errno));
-                return result;
             }
+            return total > 0 ? total : result;
         } else if (result == 0) {
-            if (total > 0) {
-                *ok = true;
-                return total;
-            } else {
-                *ok = false;
-                return 0;
-            }
+            return result;
         } else {
             assert(result > 0);
             total += result;
