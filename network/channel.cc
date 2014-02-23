@@ -12,6 +12,7 @@ Channel::Channel(EventPool* event_pool, int fd)
       events_(EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET),
       revents_(0),
       status_(0),
+      tied_(false),
       event_pool_(event_pool)
 {
 }
@@ -32,6 +33,11 @@ void Channel::DisableAll() {
     event_pool_->DisableChannel(this);
 }
 
+void Channel::TieUp(const boost::shared_ptr<void>& obj) {
+    tied_ = true;
+    obj_tied_ = obj;
+}
+
 void Channel::SetStatus(int status) {
     AtomicSetValue(status_, status);
 }
@@ -41,6 +47,16 @@ void Channel::SetReadyEvents(int revents) {
 }
 
 void Channel::EventHandler() {
+    if (tied_) {
+        boost::shared_ptr<void> guard = obj_tied_.lock();
+        if (guard)
+            SafeEventHandler();
+    } else {
+        SafeEventHandler();
+    }
+}
+
+void Channel::SafeEventHandler() {
     int revents = AtomicGetValue(revents_);
 
     LOG_TRACE("id=%u, fd=%d: %s", 

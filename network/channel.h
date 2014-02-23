@@ -2,9 +2,11 @@
 #define _YOHUB_NETWORK_CHANNEL_H_
 
 #include "share/atomic.h"
+#include <string>
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
-#include <string>
+#include <boost/weak_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 
 namespace yohub {
 
@@ -20,6 +22,8 @@ class Channel : boost::noncopyable {
     void Register();
     void Unregister();
     void DisableAll();
+
+    void TieUp(const boost::shared_ptr<void>& obj);
 
     void EventHandler();
 
@@ -46,6 +50,8 @@ class Channel : boost::noncopyable {
     static std::string EventsToString(int events);
 
   private:
+    void SafeEventHandler();
+
     static volatile uint32_t s_sequence_number_;
 
     const uint32_t id_;
@@ -53,6 +59,8 @@ class Channel : boost::noncopyable {
     const int events_;
     volatile int revents_;
     volatile int status_;
+    boost::weak_ptr<void> obj_tied_;
+    bool tied_;
     EventPool* event_pool_;
 
     CallbackFn read_callback_;

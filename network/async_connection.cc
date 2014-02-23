@@ -38,6 +38,7 @@ void AsyncConnection::Write(const char* data, size_t size) {
 void AsyncConnection::Establish() {
     if (AtomicSetValue(is_connected_, 1) == 0) {
         channel_.Register();
+        channel_.TieUp(shared_from_this());
         on_connection_cb_(shared_from_this());
     } else {
         LOG_WARN("Connection already established");
@@ -74,7 +75,6 @@ void AsyncConnection::QueueWrite(const std::string& s) {
             }
         }
     }
-
     if (size > 0) {
         out_buffer_.Append(data + s.size() - size, size);
     }
