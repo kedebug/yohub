@@ -2,6 +2,7 @@
 #include "network/async_server.h"
 #include "network/inet_address.h"
 #include "network/buffer.h"
+#include "network/callbacks.h"
 #include "share/log.h"
 #include <boost/bind.hpp>
 #include <string>
@@ -26,15 +27,16 @@ class EchoServer {
     }
 
   private:
-    void OnConnection(AsyncConnection* conn) {
-        LOG_TRACE("local=%s:%d, peer=%s:%d",
+    void OnConnection(const AsyncConnectionPtr& conn) {
+        LOG_TRACE("local=%s:%d, peer=%s:%d, %s",
             conn->local_addr().ip().c_str(), conn->local_addr().port(),
-            conn->peer_addr().ip().c_str(), conn->peer_addr().port()); 
+            conn->peer_addr().ip().c_str(), conn->peer_addr().port(),
+            conn->connected() ? "connected" : "disconnected"); 
     }
     
-    void OnReadCompletion(AsyncConnection* conn, Buffer* buffer) {
+    void OnReadCompletion(const AsyncConnectionPtr& conn, Buffer* buffer) {
         std::string s(buffer->TakeAsString());
-        LOG_TRACE("receive message: %s", s.c_str());
+        LOG_TRACE("receive message: %zu", s.size());
     }
 
     EventPool* event_pool_;
@@ -44,6 +46,7 @@ class EchoServer {
 static bool stop = false;
 
 void SignalStop(int) {
+    LOG_TRACE("Stop running...");
     stop = true;
 }
 

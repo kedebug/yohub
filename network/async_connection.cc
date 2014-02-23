@@ -24,6 +24,7 @@ AsyncConnection::AsyncConnection(EventPool* event_pool,
 }
 
 AsyncConnection::~AsyncConnection() {
+    channel_.Unregister();
     LOG_TRACE("Connecton destructor, %s:%d", 
               peer_addr_.ip().c_str(), peer_addr_.port());
 }
@@ -31,15 +32,13 @@ AsyncConnection::~AsyncConnection() {
 void AsyncConnection::Write(const char* data, size_t size) {
     std::string s(data, size);
     event_pool_->PostJob(
-        boost::bind(&AsyncConnection::QueueWrite, this, s), channel_);
+        boost::bind(&AsyncConnection::QueueWrite, shared_from_this(), s), channel_);
 }
 
 void AsyncConnection::Establish() {
     if (AtomicSetValue(is_connected_, 1) == 0) {
         channel_.Register();
-        this->Acquire();
-        on_connection_cb_(this);
-        this->Release();
+        on_connection_cb_(shared_from_this());
     } else {
         LOG_WARN("Connection already established");
     }
@@ -47,10 +46,7 @@ void AsyncConnection::Establish() {
 
 void AsyncConnection::Destroy() {
     if (AtomicSetValue(is_connected_, 0) == 1) {
-        channel_.Unregister();
-        this->Acquire();
-        on_close_cb_(this);
-        this->Release();
+        on_connection_cb_(shared_from_this());
     }
 }
 
@@ -66,10 +62,10 @@ void AsyncConnection::QueueWrite(const std::string& s) {
         int result = ::write(channel_.fd(), data, size);
         if (result >= 0) {
             size -= result;
-            if (size == 0 && on_write_completion_cb_)
-                this->Acquire();
-                on_write_completion_cb_(this);
-                this->Release();
+            if (size == 0 && on_write_completion_cb_) {
+                event_pool_->PostJob(boost::bind(
+                    on_write_completion_cb_, shared_from_this()), channel_);
+            }
         } else {
             if (errno == EAGAIN) {
                 LOG_TRACE("Waiting for next write.");
@@ -85,18 +81,16 @@ void AsyncConnection::QueueWrite(const std::string& s) {
 }
 
 void AsyncConnection::OnRead() {
-    bool ok = false;
-    int result = in_buffer_.ReadFd(channel_.fd(), &ok);
+    int saved_errno;
+    int result = in_buffer_.ReadFd(channel_.fd(), &saved_errno);
     if (result > 0) {
-        if (ok) {
-            this->Acquire();
-            on_read_completion_cb_(this, &in_buffer_);
-            this->Release();
-        }
+        event_pool_->PostJob(boost::bind(
+            on_read_completion_cb_, shared_from_this(), &in_buffer_), channel_);
     } else if (result == 0) {
         OnClose();
     } else {
-        LOG_WARN("OnRead error occur, please check it.");
+        if (saved_errno != EAGAIN)
+            LOG_WARN("OnRead error occur, please check it.");
     }
 }
 
@@ -110,11 +104,9 @@ void AsyncConnection::OnWrite() {
     if (result > 0) {
         out_buffer_.ReadableForward(result);
         if (out_buffer_.ReadableBytes() == 0) {
-            if (on_write_completion_cb_) {
-                this->Acquire();
-                on_write_completion_cb_(this);
-                this->Release();
-            }
+            if (on_write_completion_cb_)
+                event_pool_->PostJob(boost::bind(
+                    on_write_completion_cb_, shared_from_this()), channel_);
         }
     } else {
         LOG_WARN("OnWrite failed, error: %s", strerror(errno));
@@ -123,11 +115,9 @@ void AsyncConnection::OnWrite() {
 
 void AsyncConnection::OnClose() {
     if (AtomicSetValue(is_connected_, 0) == 1) {
-        channel_.Unregister();
-        this->Acquire();
-        on_close_cb_(this);
-        this->Release();
-    } else {
-        LOG_WARN("Connection already destroyed.");
+        channel_.DisableAll();
+        AsyncConnectionPtr guard(shared_from_this());
+        on_connection_cb_(guard);
+        on_close_cb_(guard);
     }
 }

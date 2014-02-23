@@ -12,7 +12,7 @@ namespace yohub {
 
 class AsyncServer : boost::noncopyable {
   public:
-    typedef std::map<int, AsyncConnection*> ConnectionMap;
+    typedef std::map<int, AsyncConnectionPtr> ConnectionMap;
 
     AsyncServer(EventPool* event_pool, const InetAddress& bindaddr);
     ~AsyncServer();
@@ -34,7 +34,7 @@ class AsyncServer : boost::noncopyable {
   private:
     // our acceptor only runs on a fixed thread.
     void OnNewConnection(int sockfd, const InetAddress& peeraddr);
-    void OnCloseConnection(AsyncConnection* conn);
+    void OnCloseConnection(const AsyncConnectionPtr& conn);
 
     EventPool* event_pool_;
     volatile int started_;

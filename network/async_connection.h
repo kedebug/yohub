@@ -10,12 +10,14 @@
 #include <string>
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
+#include <boost/enable_shared_from_this.hpp>
 
 namespace yohub {
 
 class EventPool;
 
-class AsyncConnection : boost::noncopyable {
+class AsyncConnection : boost::noncopyable,
+                        public boost::enable_shared_from_this<AsyncConnection> {
   public:
     AsyncConnection(EventPool* event_pool,
                     int socket_fd,
@@ -45,22 +47,12 @@ class AsyncConnection : boost::noncopyable {
         on_close_cb_ = callback;
     }
 
-    void Acquire() {
-        AtomicInc(refs_);
-    }
-
-    void Release() {
-        assert(refs() > 0);
-        if (AtomicDec(refs_) == 0) {
-            delete this;
-        }
-    }
-    
     const InetAddress& local_addr() { return local_addr_; }
     const InetAddress& peer_addr()  { return peer_addr_; }
 
     int id() const { return id_; }
     int refs() { return AtomicGetValue(refs_); }
+    bool connected() { return AtomicGetValue(is_connected_) == 1; }
 
   private:
     void QueueWrite(const std::string& s);
