@@ -15,11 +15,11 @@ Connector::Connector(EventPool* event_pool,
 }
 
 Connector::~Connector() {
-
 }
 
 void Connector::Connect() {
-    if (AtomicSetValue(connect_, 1) == 0) {
+    if (AtomicGetValue(status_) == kDisconnected) {
+        AtomicSetValue(connect_, 1);
         event_pool_->PostJob(boost::bind(&Connector::QueueConnect, this));
     }
 }
@@ -59,9 +59,5 @@ void Connector::OnConnect() {
 }
 
 void Connector::Retry() {
-
-}
-
-void Connector::Disconnect() {
 
 }

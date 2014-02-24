@@ -19,16 +19,18 @@ class Connector : boost::noncopyable {
     ~Connector();
 
     void Connect();
-    void Connecting(int sockfd);
     void Retry();
-    void Disconnect();
 
-    void OnConnect();
+    void SetNewConnectionCallback(const NewConnectionCallback& cb) {
+        on_new_connection_cb_ = cb;
+    }
 
   private:
     enum { kDisconnected, kConnecting, kConnected };
 
+    void OnConnect();
     void QueueConnect();
+    void Connecting(int sockfd);
 
     EventPool* event_pool_;
     InetAddress remote_addr_;
