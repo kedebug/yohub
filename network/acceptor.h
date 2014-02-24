@@ -24,8 +24,8 @@ class Acceptor : boost::noncopyable {
 
     void SetAndBind(const InetAddress& bindaddr);
 
-    void SetNewConnectionCallback(const NewConnectionCallback& callback_fn) {
-        on_new_connection_ = callback_fn;
+    void SetNewConnectionCallback(const NewConnectionCallback& callback) {
+        on_new_connection_cb_ = callback;
     }
 
   private:
@@ -35,7 +35,7 @@ class Acceptor : boost::noncopyable {
     Channel accept_channel_;
     int idle_fd_;
 
-    NewConnectionCallback on_new_connection_;
+    NewConnectionCallback on_new_connection_cb_;
 };
 
 } // namespace yohub

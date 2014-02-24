@@ -41,8 +41,8 @@ void Acceptor::OnAccept() {
 
     if (newfd >= 0) {
         LOG_TRACE("new connection, fd=%d", newfd);
-        if (on_new_connection_) {
-            on_new_connection_(newfd, peeraddr);
+        if (on_new_connection_cb_) {
+            on_new_connection_cb_(newfd, peeraddr);
         } else {
             ::close(newfd);
             LOG_WARN("the new connection callback should set");

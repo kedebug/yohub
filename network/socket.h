@@ -25,6 +25,7 @@ class Socket : boost::noncopyable {
     int fd() const { return socket_fd_; }
 
     static int CreateNonblockingSocket();
+    static int Connect(int fd, const struct sockaddr_in& addr);
     static struct sockaddr_in GetSocketName(int sockfd);
 
   private:

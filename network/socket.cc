@@ -81,6 +81,10 @@ int Socket::CreateNonblockingSocket() {
     return newfd;
 }
 
+int Socket::Connect(int fd, const struct sockaddr_in& sa) {
+    return ::connect(fd, reinterpret_cast<const sockaddr*>(&sa), sizeof(sa));
+}
+
 struct sockaddr_in Socket::GetSocketName(int sockfd) {
     struct sockaddr_in sa;
     socklen_t len = sizeof(sa);

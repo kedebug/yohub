@@ -47,6 +47,7 @@ void AsyncConnection::Establish() {
 
 void AsyncConnection::Destroy() {
     if (AtomicSetValue(is_connected_, 0) == 1) {
+        channel_.DisableAll();
         on_connection_cb_(shared_from_this());
     }
 }
