@@ -30,6 +30,7 @@ class AsyncConnection : boost::noncopyable,
 
     void Establish();
     void Destroy();
+    void Shutdown();
 
     void SetConnectionCallback(const ConnectionCallback& callback) {
         on_connection_cb_ = callback;

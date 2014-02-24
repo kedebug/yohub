@@ -91,7 +91,22 @@ struct sockaddr_in Socket::GetSocketName(int sockfd) {
 
     memset(&sa, 0, sizeof(sa));
     if (::getsockname(sockfd, reinterpret_cast<sockaddr*>(&sa), &len) < 0) {
-        LOG_WARN("GetSocketName failed, error: %s", strerror(errno));
+        LOG_WARN("getsockname failed, error: %s", strerror(errno));
+    }
+    return sa;
+}
+
+struct sockaddr_in Socket::GetPeerSockAddr(int sockfd) {
+    return GetSocketName(sockfd);
+}
+
+struct sockaddr_in Socket::GetLocalSockAddr(int sockfd) {
+    struct sockaddr_in sa;
+    socklen_t len = sizeof(sa);
+
+    memset(&sa, 0, sizeof(sa));
+    if (::getpeername(sockfd, reinterpret_cast<sockaddr*>(&sa), &len) < 0) {
+        LOG_WARN("getpeername failed, error: %s", strerror(errno));
     }
     return sa;
 }

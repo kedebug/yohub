@@ -5,6 +5,7 @@
 #include "network/async_connection.h"
 #include "network/acceptor.h"
 #include "network/callbacks.h"
+#include "share/mutex.h"
 #include <map>
 #include <boost/noncopyable.hpp>
 
@@ -39,9 +40,10 @@ class AsyncServer : boost::noncopyable {
     EventPool* event_pool_;
     volatile int started_;
     volatile int num_connections_;
-    ConnectionMap connections_;
     Acceptor acceptor_;
     InetAddress bind_addr_;
+    Mutex mu_;
+    ConnectionMap connections_;
 
     ConnectionCallback on_connection_cb_;
     WriteCompletionCallback on_write_completion_cb_;

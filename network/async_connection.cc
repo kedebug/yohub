@@ -52,6 +52,12 @@ void AsyncConnection::Destroy() {
     }
 }
 
+void AsyncConnection::Shutdown() {
+    if (::shutdown(channel_.fd(), SHUT_WR) < 0) {
+        LOG_WARN("shutdown error: %s", strerror(errno));
+    }
+}
+
 void AsyncConnection::QueueWrite(const std::string& s) {
     if (AtomicGetValue(is_connected_) == 0) {
         LOG_WARN("Stop writing: onnection already destroyed.");
