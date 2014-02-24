@@ -24,6 +24,8 @@ class EventPool : boost::noncopyable {
     void DetachChannel(Channel* channel);
     void DisableChannel(Channel* channel);
 
+    // choose the first thread by default
+    void PostJob(const Job& job, int which = 0);
     void PostJob(const Job& job, const Channel& channel);
 
     void PollWrapper(int which);

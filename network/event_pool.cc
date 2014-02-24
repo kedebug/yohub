@@ -39,6 +39,10 @@ void EventPool::Stop() {
     }
 }
 
+void EventPool::PostJob(const Job& job, int which) {
+    backend_handler_.Schedule(job, which);
+}
+
 void EventPool::PostJob(const Job& job, const Channel& channel) {
     backend_handler_.Schedule(job, channel.id() % num_backends_);
 }
@@ -51,10 +55,9 @@ void EventPool::PollWrapper(int which) {
         active_channels.clear();
         poller.Poll(kPollTimeMs, &active_channels);
 
-        for (size_t i = 0; i < active_channels.size(); i++) {
-            backend_handler_.Schedule(
-                boost::bind(&Channel::EventHandler, active_channels[i]),
-                active_channels[i]->id() % num_backends_);
+        for (ChannelList::iterator iter = active_channels.begin();
+             iter != active_channels.end(); iter++) {
+            PostJob(boost::bind(&Channel::EventHandler, *iter), **iter); 
         }
     }
 }
