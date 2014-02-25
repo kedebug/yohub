@@ -45,3 +45,4 @@ install(TARGETS yohub DESTINATION lib)
 
 add_subdirectory(test)
 add_subdirectory(demo)
+add_subdirectory(bench)

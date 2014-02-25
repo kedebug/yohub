@@ -24,7 +24,7 @@ class EchoClient {
     }
 
     ~EchoClient() {
-        // async_client_.Disconnect();
+        async_client_.Disconnect();
     }
 
     void Connect() {
