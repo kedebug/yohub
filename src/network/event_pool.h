@@ -3,6 +3,7 @@
 
 #include "network/epoller.h"
 #include "network/channel.h"
+#include "network/socket.h"
 #include "share/threadpool.h"
 #include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
@@ -20,6 +21,8 @@ class EventPool : boost::noncopyable {
     void Run();
     void Stop();
 
+    void WakeUp();
+
     void AttachChannel(Channel* channel);
     void DetachChannel(Channel* channel);
     void DisableChannel(Channel* channel);
@@ -36,6 +39,8 @@ class EventPool : boost::noncopyable {
     const int num_backends_;
 
     boost::ptr_vector<EPoller> pollers_;
+    boost::ptr_vector<Socket> wakeup_socks_;
+    boost::ptr_vector<Channel> wakeup_chans_;
     ThreadPool poller_handler_;
     ThreadPool backend_handler_;
 };

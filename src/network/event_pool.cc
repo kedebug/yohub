@@ -1,5 +1,7 @@
 #include "network/event_pool.h"
+#include "network/socket.h"
 #include <boost/bind.hpp>
+#include <sys/eventfd.h>
 
 using namespace yohub;
 
@@ -26,7 +28,13 @@ void EventPool::Run() {
     backend_handler_.Start(num_backends_);
 
     for (int i = 0; i < num_pollers_; i++) {
+        int wakeup_fd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+        wakeup_socks_.push_back(new Socket(wakeup_fd));
+        wakeup_chans_.push_back(new Channel(this, wakeup_fd));
+
         pollers_.push_back(new EPoller);
+        pollers_.back().AttachChannel(&(wakeup_chans_.back()));
+
         poller_handler_.Schedule(
             boost::bind(&EventPool::PollWrapper, this, i), i);
     }
@@ -34,8 +42,19 @@ void EventPool::Run() {
 
 void EventPool::Stop() {
     if (AtomicSetValue(running_, 0) == 1) {
+        WakeUp();
         poller_handler_.Stop();
         backend_handler_.Stop();
+    }
+}
+
+void EventPool::WakeUp() {
+    for (size_t i = 0; i < wakeup_socks_.size(); i++) {
+        uint64_t val = 1;
+        int result = ::write(wakeup_socks_[i].fd(), &val, sizeof(val));
+        if (result != sizeof(val)) {
+            LOG_WARN("WakeUp error: %s", strerror(errno));
+        }
     }
 }
 

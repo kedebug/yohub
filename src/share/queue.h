@@ -22,14 +22,23 @@ class Queue {
         elems_.push_back(x);
     }
 
-    bool FetchAll(Container* c, int wait_seconds) {
+    bool FetchAll(Container* c, int wait_seconds = -1) {
         MutexLock l(&mu_);
         while (elems_.empty()) {
-            if (cv_.TimedWait(wait_seconds))
-                return false;
+            if (wait_seconds == -1) {
+                cv_.Wait();
+            } else {
+                if (cv_.TimedWait(wait_seconds))
+                    return false;
+            }
         }
         c->swap(elems_);
         return true;
+    }
+
+    size_t size() {
+        MutexLock l(&mu_);
+        return elems_.size();
     }
 
   private:

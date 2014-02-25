@@ -30,6 +30,7 @@ class ThreadPool : boost::noncopyable {
 
   private:
     void WorkHandler(int which);
+    void TerminationJob();
 
     volatile int running_;
     volatile int workers_;
