@@ -9,7 +9,7 @@ volatile uint32_t Channel::s_sequence_number_ = 0;
 Channel::Channel(EventPool* event_pool, int fd)
     : id_(AtomicInc(s_sequence_number_)), 
       fd_(fd),
-      events_(EPOLLIN | EPOLLOUT | EPOLLERR | EPOLLET),
+      events_(EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLERR | EPOLLET),
       revents_(0),
       status_(0),
       tied_(false),
@@ -62,17 +62,14 @@ void Channel::SafeEventHandler() {
     LOG_TRACE("id=%u, fd=%d: %s", 
         id_, fd_, EventsToString(revents).c_str());
 
-    if ((revents & EPOLLHUP) && !(revents & EPOLLIN)) {
-        if (close_callback_)
-            close_callback_();
+    if (revents & EPOLLRDHUP) {
+        if (close_callback_) close_callback_();
     }
-    if (revents & (EPOLLIN | EPOLLPRI | EPOLLRDHUP)) {
-        if (read_callback_) 
-            read_callback_();
+    if (revents & (EPOLLIN | EPOLLPRI)) {
+        if (read_callback_) read_callback_();
     }
     if (revents & EPOLLOUT) {
-        if (write_callback_)
-            write_callback_();
+        if (write_callback_) write_callback_();
     }
 }
 

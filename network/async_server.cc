@@ -51,10 +51,9 @@ void AsyncServer::OnNewConnection(int sockfd,
         boost::bind(&AsyncServer::OnCloseConnection, this, _1));
 
     new_conn->Establish();
-    {
-        MutexLock l(&mu_);
-        connections_[new_conn->id()] = new_conn;
-    }
+
+    MutexLock l(&mu_);
+    connections_[new_conn->id()] = new_conn;
 }
 
 void AsyncServer::OnCloseConnection(const AsyncConnectionPtr& conn) {

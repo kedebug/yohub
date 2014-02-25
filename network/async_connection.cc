@@ -18,6 +18,8 @@ AsyncConnection::AsyncConnection(EventPool* event_pool,
       refs_(0),
       is_connected_(0)
 {
+    socket_.SetKeepAlive(true);
+
     channel_.SetReadCallback(boost::bind(&AsyncConnection::OnRead, this));
     channel_.SetWriteCallback(boost::bind(&AsyncConnection::OnWrite, this));
     channel_.SetCloseCallback(boost::bind(&AsyncConnection::OnClose, this));
@@ -27,6 +29,10 @@ AsyncConnection::~AsyncConnection() {
     channel_.Unregister();
     LOG_TRACE("Connecton destructor, %s:%d", 
               peer_addr_.ip().c_str(), peer_addr_.port());
+}
+
+void AsyncConnection::Write(const std::string& s) {
+    Write(s.data(), s.size());
 }
 
 void AsyncConnection::Write(const char* data, size_t size) {
@@ -60,7 +66,7 @@ void AsyncConnection::Shutdown() {
 
 void AsyncConnection::QueueWrite(const std::string& s) {
     if (AtomicGetValue(is_connected_) == 0) {
-        LOG_WARN("Stop writing: onnection already destroyed.");
+        LOG_WARN("Stop writing: connection already destroyed.");
         return;
     }
     const char* data = s.data();

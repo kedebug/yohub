@@ -96,11 +96,11 @@ struct sockaddr_in Socket::GetSocketName(int sockfd) {
     return sa;
 }
 
-struct sockaddr_in Socket::GetPeerSockAddr(int sockfd) {
+struct sockaddr_in Socket::GetLocalSockAddr(int sockfd) {
     return GetSocketName(sockfd);
 }
 
-struct sockaddr_in Socket::GetLocalSockAddr(int sockfd) {
+struct sockaddr_in Socket::GetPeerSockAddr(int sockfd) {
     struct sockaddr_in sa;
     socklen_t len = sizeof(sa);
 

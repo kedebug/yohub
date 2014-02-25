@@ -26,6 +26,7 @@ class AsyncConnection : boost::noncopyable,
                     const InetAddress& peer_addr);
     ~AsyncConnection();
 
+    void Write(const std::string& s);
     void Write(const char* data, size_t size);
 
     void Establish();
