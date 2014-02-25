@@ -1,27 +1,34 @@
 #include "share/log.h"
 #include "network/event_pool.h"
-#include "network/async_server.h"
-
-#include <signal.h>
+#include "network/async_client.h"
+#include "network/async_connection.h"
+#include "network/buffer.h"
 #include <string>
 #include <boost/bind.hpp>
+#include <signal.h>
 
 using namespace yohub;
 
-class EchoServer {
+static bool stop = false;
+
+class EchoClient {
   public:
-    EchoServer(EventPool* event_pool, const InetAddress& bindaddr)
+    EchoClient(EventPool* event_pool, const InetAddress& remote)
         : event_pool_(event_pool),
-          async_server_(event_pool_, bindaddr)
-    {
-        async_server_.SetConnectionCallback(
-            boost::bind(&EchoServer::OnConnection, this, _1));
-        async_server_.SetReadCompletionCallback(
-            boost::bind(&EchoServer::OnReadCompletion, this, _1, _2));
+          async_client_(event_pool_, remote) 
+    { 
+        async_client_.SetConnectionCallback(
+            boost::bind(&EchoClient::OnConnection, this, _1));
+        async_client_.SetReadCompletionCallback(
+            boost::bind(&EchoClient::OnReadCompletion, this, _1, _2));
     }
 
-    void Start() {
-        async_server_.Start();
+    ~EchoClient() {
+        // async_client_.Disconnect();
+    }
+
+    void Connect() {
+        async_client_.Connect();
     }
 
   private:
@@ -31,20 +38,18 @@ class EchoServer {
             conn->peer_addr().ip().c_str(), conn->peer_addr().port(),
             conn->connected() ? "connected" : "disconnected"); 
 
-        conn->Write(std::string(" hello "));
+        conn->Write(std::string(" world "));
     }
-    
+
     void OnReadCompletion(const AsyncConnectionPtr& conn, Buffer* buffer) {
         std::string s(buffer->TakeAsString());
-        LOG_TRACE("received : %s", s.c_str());
+        LOG_TRACE("received: %s", s.c_str());
         conn->Write(s.data(), s.size());
     }
 
-    EventPool* event_pool_;
-    AsyncServer async_server_;
+    EventPool* const event_pool_;
+    AsyncClient async_client_;
 };
-
-static bool stop = false;
 
 void SignalStop(int) {
     LOG_TRACE("Stop running...");
@@ -52,13 +57,14 @@ void SignalStop(int) {
 }
 
 int main() {
-    ::signal(SIGINT, SignalStop);
+    ::signal(SIGINT, SignalStop);    
 
     EventPool event_pool(1, 1);
-    InetAddress bindaddr("127.0.0.1", 19910);
     event_pool.Run();
-    EchoServer server(&event_pool, bindaddr);
-    server.Start();
+
+    InetAddress remote("127.0.0.1", 19910);
+    EchoClient client(&event_pool, remote);
+    client.Connect();
 
     while (true) {
         if (stop) {
