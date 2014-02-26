@@ -1,6 +1,7 @@
 #include "network/buffer.h"
 #include "share/log.h"
 #include <errno.h>
+#include <unistd.h>
 
 using namespace yohub;
 

@@ -22,7 +22,7 @@ class ThreadPool : boost::noncopyable {
     void Start(int workers);
     void Stop();
 
-    void Schedule(Job job, int which);
+    void Schedule(const Job& job, int which);
 
     int workers() { 
         return AtomicGetValue(workers_);

@@ -1,7 +1,7 @@
 #include <unistd.h>
 
-int num_pipes;
-int num_active;
+int count, writes, fired;
+int num_pipes, num_active, num_writes;
 
 int main() {
 }

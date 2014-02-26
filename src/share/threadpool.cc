@@ -37,8 +37,7 @@ void ThreadPool::Start(int workers) {
 void ThreadPool::Stop() {
     if (AtomicSetValue(running_, 0) == 1) {
         for (size_t i = 0; i < threads_.size(); i++) {
-            queues_[i].Push(boost::bind(&ThreadPool::TerminationJob, this));
-            AtomicInc(job_count_);
+            Schedule(boost::bind(&ThreadPool::TerminationJob, this), i);
             threads_[i].Join();
         }
         assert(AtomicGetValue(job_count_) == 0);
@@ -63,10 +62,8 @@ void ThreadPool::TerminationJob() {
     LOG_TRACE("TerminationJob scheduled...");
 }
 
-void ThreadPool::Schedule(Job job, int which) {
-    if (AtomicGetValue(running_) == 1) {
-        AtomicInc(job_count_);
-        assert(which >= 0 && which < workers_); 
-        queues_[which].Push(job);
-    }
+void ThreadPool::Schedule(const Job& job, int which) {
+    AtomicInc(job_count_);
+    assert(which >= 0 && which < workers_); 
+    queues_[which].Push(job);
 }

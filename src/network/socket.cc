@@ -4,6 +4,7 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <string.h>
+#include <unistd.h>
 
 using namespace yohub;
 
