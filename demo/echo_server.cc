@@ -54,6 +54,8 @@ void SignalStop(int) {
 int main() {
     ::signal(SIGINT, SignalStop);
 
+    log::SetLogLevel(log::TRACE);
+
     EventPool event_pool(1, 1);
     InetAddress bindaddr("127.0.0.1", 19910);
     event_pool.Run();

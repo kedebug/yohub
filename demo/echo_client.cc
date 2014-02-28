@@ -59,6 +59,8 @@ void SignalStop(int) {
 int main() {
     ::signal(SIGINT, SignalStop);    
 
+    log::SetLogLevel(log::TRACE);
+
     EventPool event_pool(1, 1);
     event_pool.Run();
 
