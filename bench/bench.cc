@@ -70,6 +70,8 @@ void RunOnce() {
 }
 
 int main(int argc, char* argv[]) {
+    log::SetLogLevel(log::FATAL);
+
     num_pipes = 100;
     num_active = 1;
     num_writes = 100;
@@ -116,5 +118,6 @@ int main(int argc, char* argv[]) {
 
     for (int i = 0; i < 25; i++) {
         RunOnce();
+        fprintf(stdout, "writes=%d, fired=%d, recv=%d\n", writes, fired, count);
     }
 }

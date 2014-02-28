@@ -13,7 +13,7 @@ namespace {
 
 EPoller::EPoller()
     : epoll_fd_(::epoll_create1(EPOLL_CLOEXEC)),
-      events_(16)
+      events_(1024)
 {
 }
 
@@ -26,6 +26,7 @@ void EPoller::Poll(int timeout_ms, ChannelList* active_channels) {
         epoll_fd_, &*events_.begin(), events_.size(), timeout_ms);
 
     if (num_events > 0) {
+        active_channels->reserve(num_events);
         for (int i = 0; i < num_events; i++) {
             Channel* channel = static_cast<Channel*>(events_[i].data.ptr);
             active_channels->push_back(channel);
