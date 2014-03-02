@@ -21,7 +21,7 @@ class AsyncConnection : boost::noncopyable,
   public:
     AsyncConnection(EventPool* event_pool,
                     int socket_fd,
-                    int conn_id,
+                    int num_conns,
                     const InetAddress& local_addr,
                     const InetAddress& peer_addr);
     ~AsyncConnection();
@@ -70,7 +70,6 @@ class AsyncConnection : boost::noncopyable,
     InetAddress peer_addr_;
 
     const int id_;
-    volatile int refs_;
     volatile int is_connected_;
 
     Buffer in_buffer_;

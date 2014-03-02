@@ -6,7 +6,7 @@ using namespace yohub;
 
 AsyncConnection::AsyncConnection(EventPool* event_pool,
                                  int socket_fd,
-                                 int conn_id,
+                                 int num_conns,
                                  const InetAddress& local_addr,
                                  const InetAddress& peer_addr)
     : event_pool_(event_pool),
@@ -14,8 +14,7 @@ AsyncConnection::AsyncConnection(EventPool* event_pool,
       channel_(event_pool_, socket_fd),
       local_addr_(local_addr),
       peer_addr_(peer_addr),
-      id_(conn_id),
-      refs_(0),
+      id_(num_conns),
       is_connected_(0)
 {
     socket_.SetKeepAlive(true);
@@ -129,8 +128,7 @@ void AsyncConnection::OnWrite() {
 void AsyncConnection::OnClose() {
     if (AtomicSetValue(is_connected_, 0) == 1) {
         channel_.DisableAll();
-        AsyncConnectionPtr guard(shared_from_this());
-        on_connection_cb_(guard);
-        on_close_cb_(guard);
+        on_connection_cb_(shared_from_this());
+        on_close_cb_(shared_from_this());
     }
 }
