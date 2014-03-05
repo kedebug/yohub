@@ -53,7 +53,6 @@ class AsyncConnection : boost::noncopyable,
     const InetAddress& peer_addr()  { return peer_addr_; }
 
     int id() const { return id_; }
-    int refs() { return AtomicGetValue(refs_); }
     bool connected() { return AtomicGetValue(is_connected_) == 1; }
 
   private:
