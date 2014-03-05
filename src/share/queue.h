@@ -12,14 +12,22 @@ class Queue {
   public:
     typedef std::vector<T> Container;
 
-    Queue() : mu_(), cv_(&mu_) { }
+    Queue() 
+        : mu_(), 
+          cv_(&mu_), 
+          valid_(true) 
+    { }
 
-    void Push(T x) {
+    bool Push(const T& x) {
         MutexLock l(&mu_);
+        if (!valid_) {
+            return false;
+        }
         if (elems_.empty()) {
             cv_.Signal();
         }
         elems_.push_back(x);
+        return true;
     }
 
     bool FetchAll(Container* c, int wait_seconds = -1) {
@@ -41,10 +49,21 @@ class Queue {
         return elems_.size();
     }
 
+    void SetInvalid() {
+        MutexLock l(&mu_);
+        valid_ = false;
+    }
+
+    bool valid() { 
+        MutexLock l(&mu_);
+        return valid_;
+    }
+
   private:
     Mutex mu_;
     CondVar cv_;
     Container elems_;
+    bool valid_;
 };
 
 } // namespace yohub

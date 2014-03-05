@@ -37,7 +37,13 @@ void ThreadPool::Start(int workers) {
 void ThreadPool::Stop() {
     if (AtomicSetValue(running_, 0) == 1) {
         for (size_t i = 0; i < threads_.size(); i++) {
-            Schedule(boost::bind(&ThreadPool::TerminationJob, this), i);
+            bool ok = queues_[i].Push(
+                boost::bind(&ThreadPool::TerminationJob, this));
+            if (ok) {
+                AtomicInc(job_count_);
+            }
+        }
+        for (size_t i = 0; i < threads_.size(); i++) {
             threads_[i].Join();
         }
         assert(AtomicGetValue(job_count_) == 0);
@@ -56,14 +62,25 @@ void ThreadPool::WorkHandler(int which) {
             AtomicDec(job_count_);
         }
     }
+    queues_[which].SetInvalid();
+}
+
+bool ThreadPool::Schedule(const Job& job, int which) {
+    if (AtomicGetValue(running_) == 0) {
+        return false;
+    }
+    int n = AtomicInc(job_count_);
+    if (which == -1) {
+        which = n % workers_;
+    }
+    if (queues_[which].Push(job)) {
+        return true;
+    } else {
+        AtomicDec(job_count_);
+        return false;
+    }
 }
 
 void ThreadPool::TerminationJob() {
     LOG_TRACE("TerminationJob scheduled...");
-}
-
-void ThreadPool::Schedule(const Job& job, int which) {
-    AtomicInc(job_count_);
-    assert(which >= 0 && which < workers_); 
-    queues_[which].Push(job);
 }
