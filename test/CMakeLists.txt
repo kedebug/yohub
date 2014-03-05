@@ -9,3 +9,6 @@ target_link_libraries(share_threadpool_test yohub)
 
 add_executable(net_buffer_test net_buffer_test.cc)
 target_link_libraries(net_buffer_test yohub)
+
+add_executable(net_inet_address_test net_inet_address_test.cc)
+target_link_libraries(net_inet_address_test yohub)
