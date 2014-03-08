@@ -19,7 +19,7 @@ YoHub is designed to be a high-performance network application framework, which 
 
 ![1000](https://raw.github.com/kedebug/kedebug.github.com/master/pic/1000.png)
 
-The benchmark program takes the paramter `-n` equals to `-w`, which means every client will be notified to read and wirte. The above pictures show that yohub has lower costs than libevent-1.4.14b. With the increment of the file descriptor, this tendency becomes more and more obvious.
+The benchmark program takes the paramter `-n` equals to `-w`, which means every client will be notified to read and wirte. The report of our benchmark shows that yohub has lower costs than libevent-1.4.14b. With the increment of the file descriptor, this advantage can be obviously seen in above pictures.
 
 ### Usage
 To use yohub, boost library is required to be installed in your machine. After that:
@@ -29,4 +29,24 @@ cmake . && make
 Please see the files under `yohub/demo/` directory for further usage.
 
 ### License
-[MIT](http://opensource.org/licenses/MIT)
+The MIT License (MIT)
+
+Copyright (c) 2014 kedebug <sunweiqq@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
