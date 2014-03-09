@@ -23,10 +23,12 @@ The benchmark program takes the paramter `-n` equals to `-w`, which means every 
 
 ### Usage
 To use yohub, boost library is required to be installed in your machine. After that:
+```bash
+$ git clone git@github.com:kedebug/yohub.git
+$ cd yohub
+$ cmake . && make
 ```
-cmake . && make
-```
-Please see the files under `yohub/demo/` directory for further usage.
+Please see the files under [yohub/demo/](https://github.com/kedebug/yohub/tree/master/demo) directory for further usage.
 
 ### License
 The MIT License (MIT)
