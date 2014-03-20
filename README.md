@@ -33,7 +33,7 @@ Please see the files under [yohub/demo/](https://github.com/kedebug/yohub/tree/m
 ### License
 The MIT License (MIT)
 
-Copyright (c) 2014 kedebug <sunweiqq@gmail.com>
+Copyright (c) 2014 kedebug
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
