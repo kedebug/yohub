@@ -13,11 +13,11 @@ YoHub is designed to be a high-performance network application framework, which 
 
 * __100 active clients.__
 
-![100](https://raw.github.com/kedebug/kedebug.github.com/master/pic/100.png)
+![100](https://raw.githubusercontent.com/kedebug/yohub/master/bench/100.png)
 
 * __1000 active clients.__
 
-![1000](https://raw.github.com/kedebug/kedebug.github.com/master/pic/1000.png)
+![1000](https://raw.githubusercontent.com/kedebug/yohub/master/bench/1000.png)
 
 The benchmark program takes the paramter `-n` equals to `-w`, which means every client will be notified to read and wirte. The report of our benchmark shows that yohub has lower costs than libevent-1.4.14b. With the increment of the file descriptor, this advantage can be obviously seen in above pictures.
 
