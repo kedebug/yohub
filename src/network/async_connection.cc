@@ -26,7 +26,7 @@ AsyncConnection::AsyncConnection(EventPool* event_pool,
 
 AsyncConnection::~AsyncConnection() {
     channel_.Unregister();
-    LOG_TRACE("Connecton destructor, %s:%d", 
+    LOG_TRACE("Connection destructor, %s:%d", 
               peer_addr_.ip().c_str(), peer_addr_.port());
 }
 
